@@ -6,40 +6,26 @@
 // ctrl a+k+f
 
 #include <stdio.h>
-#include "fcfs.c"
-
-int printRandom(int lower, int upper, int count)
-{
-    int i;
-    for (i = 0; i < count; i++)
-    {
-        int num = (rand() %
-                   (upper - lower + 1)) +
-                  lower;
-        return num;
-    }
-}
+#include "sort.c"
 
 main()
 
 {
-    int option = 0;
+    int option;
     int choice;
 
-    srand(time(0));
-    int arrTime[] = {};
-    int burstTime[] = {};
-    int priority[] = {};
-    int proc[] = {1, 2, 3, 4, 5, 6};
+    int i;
+    srand(time(NULL));
 
-    /*
-                int i;
-                for (i = 0; i < 6; i++)
-                {
-                    arrTime[i] = printRandom(1, 10, 1);
-                    burstTime[i] = printRandom(1, 10, 1);
-                    priority[i] = printRandom(1, 10, 1);
-                }     */
+    struct Process processes[NUM_PROCESSES];
+    // Generate random arrival time, burst time, and priority for each process
+    for (i = 0; i < NUM_PROCESSES; i++)
+    {
+        processes[i].processID = i + 1;
+        processes[i].arrivalTime = rand() % 10;
+        processes[i].burstTime = rand() % 10 + 1;
+        processes[i].priority = rand() % 5 + 1;
+    }
 
     while (option != 1)
     {
@@ -49,19 +35,26 @@ main()
         switch (choice)
         {
         case 1: // FCFS
-            int n = sizeof proc / sizeof proc[0];
-            int i;
-            for (i = 0; i < 6; i++)
-            {
-                priority[i] = printRandom(1, 10, 1);
-                burstTime[i] = printRandom(1, 10, 1);
-            }
-            avgtime(proc, n, burstTime);
-            return 0;
+
+            fcfsSort(processes);
+            calculateTimes(processes);
+            process(processes);
+            avgTurnTime(processes);
+            avgWaitTime(processes);
+            avgResTime(processes);
+            option = 1;
             break;
 
         case 2: // SJF
 
+            sjfSort(processes);
+            calculateTimes(processes);
+            process(processes);
+            avgTurnTime(processes);
+            avgWaitTime(processes);
+            avgResTime(processes);
+
+            break;
 
         }
     }
