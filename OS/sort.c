@@ -46,7 +46,7 @@ void process(struct Process processes[])
    }
 }
 
-void avgTurnTime(struct Process processes[])
+float avgTurnTime(struct Process processes[])
 {
    float sumTurnaroundTime = 0;
    int i;
@@ -57,10 +57,11 @@ void avgTurnTime(struct Process processes[])
    }
 
    float avgTurnaroundTime = sumTurnaroundTime / NUM_PROCESSES;
-   printf("\nShortest Average Turnaround Time: %.2f\n", avgTurnaroundTime);
+
+   return avgTurnaroundTime;
 }
 
-void avgWaitTime(struct Process processes[])
+float avgWaitTime(struct Process processes[])
 {
    float sumWaitingTime = 0;
    int i;
@@ -71,10 +72,11 @@ void avgWaitTime(struct Process processes[])
    }
 
    float avgWaitingTime = sumWaitingTime / NUM_PROCESSES;
-   printf("Shortest Average Waiting Time: %.2f\n", avgWaitingTime);
+
+   return avgWaitingTime;
 }
 
-void avgResTime(struct Process processes[])
+float avgResTime(struct Process processes[])
 {
    float sumResponseTime = 0;
    int i;
@@ -85,7 +87,8 @@ void avgResTime(struct Process processes[])
    }
 
    float avgResponseTime = sumResponseTime / NUM_PROCESSES;
-   printf("Shortest Average Response Time: %.2f\n", avgResponseTime);
+
+   return avgResponseTime;
 }
 
 void fcfsSort(struct Process processes[])
@@ -125,4 +128,16 @@ void sjfSort(struct Process processes[])
          }
       }
    }
+}
+
+float findSmallest(float array[], int size) {
+    float smallest = array[0];  // Assume the first element is the smallest
+
+    for (int i = 1; i < size; i++) {
+        if (array[i] < smallest) {
+            smallest = array[i];  // Update the smallest value
+        }
+    }
+
+    return smallest;
 }
