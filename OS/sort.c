@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_PROCESSES 6
+#define NUM_PROCESSES 8
 
 struct Process
 {
@@ -12,6 +12,7 @@ struct Process
    int waitingTime;
    int turnaroundTime;
    int responseTime;
+   int completionTime;
 };
 
 void calculateTimes(struct Process processes[])
@@ -45,6 +46,7 @@ void process(struct Process processes[])
              processes[i].arrivalTime, processes[i].burstTime, processes[i].priority);
    }
 }
+
 
 float avgTurnTime(struct Process processes[])
 {
@@ -109,9 +111,56 @@ void fcfsSort(struct Process processes[])
       }
    }
 }
+void sjfSort(struct Process processes[],struct Process sortedProcesses[],int currentTime,int temp2)
+{
+   currentTime = processes[0].arrivalTime + processes[0].burstTime;
+   sortedProcesses[0].arrivalTime = processes[0].arrivalTime;
+   sortedProcesses[0].burstTime = processes[0].burstTime;
+   for (int i = 1; i < NUM_PROCESSES; i++)
+   {
+      if (processes[i].arrivalTime > currentTime)
+      {
+         // At the current index, there does not exist a process
+         // that has arrived and is waiting to be processed
+         // Therefore, we move the currentTime to the arrival time of
+         // the current index since it is sorted by fastest arrival
+         // Then we proceed as per usual
 
+         currentTime = processes[i].arrivalTime;
+      }
 
-void sjfSort(struct Process processes[])
+      int fastestTime = processes[i].burstTime;
+      int fastestIndex = i;
+
+      // Loop through the remaining items to find the fastest burst time
+      for (int j = i + 1; j < NUM_PROCESSES; j++)
+      {
+         // If there exists a process that has arrived and is waiting
+         if (processes[j].arrivalTime <= currentTime)
+         {
+            // If that process has a faster burst time
+            if (processes[j].burstTime < fastestTime)
+            {
+               // Take note of the timing and index
+               fastestTime = processes[j].burstTime;
+               fastestIndex = j;
+            }
+         }
+      }
+
+      // Swap the contents of the current index with the contents of the fastest index
+      currentTime += processes[fastestIndex].burstTime;
+      temp2 = processes[fastestIndex].arrivalTime;
+      processes[fastestIndex].arrivalTime = processes[i].arrivalTime;
+      sortedProcesses[i].arrivalTime = temp2;
+
+      temp2 = processes[fastestIndex].burstTime;
+      processes[fastestIndex].burstTime = processes[i].burstTime;
+      sortedProcesses[i].burstTime = temp2;
+   }
+}
+
+void prioSort(struct Process processes[])
 {
    int i, j;
    struct Process temp;
@@ -120,7 +169,7 @@ void sjfSort(struct Process processes[])
    {
       for (j = i + 1; j < NUM_PROCESSES; j++)
       {
-         if (processes[i].burstTime > processes[j].burstTime)
+         if (processes[i].priority > processes[j].priority)
          {
             temp = processes[i];
             processes[i] = processes[j];
@@ -130,14 +179,17 @@ void sjfSort(struct Process processes[])
    }
 }
 
-float findSmallest(float array[], int size) {
-    float smallest = array[0];  // Assume the first element is the smallest
+float findSmallest(float array[], int size)
+{
+   float smallest = array[0]; // Assume the first element is the smallest
 
-    for (int i = 1; i < size; i++) {
-        if (array[i] < smallest) {
-            smallest = array[i];  // Update the smallest value
-        }
-    }
+   for (int i = 1; i < size; i++)
+   {
+      if (array[i] < smallest)
+      {
+         smallest = array[i]; // Update the smallest value
+      }
+   }
 
-    return smallest;
+   return smallest;
 }
