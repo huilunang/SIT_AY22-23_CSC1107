@@ -101,7 +101,6 @@ main()
                 printf("Output written to the file successfully.\n");
 
                 loop = 1;
-                
             }
             break;
         case 2: // SJF being the shortest
@@ -112,22 +111,9 @@ main()
                 processes[i].arrivalTime = rand() % 10;
                 processes[i].burstTime = rand() % 10 + 1;
                 processes[i].priority = rand() % 5 + 1;
-                sortedProcesses[i].processID = i + 1;
-                sortedProcesses[i].arrivalTime = rand() % 10;
-                sortedProcesses[i].burstTime = rand() % 10 + 1;
-                sortedProcesses[i].priority = rand() % 5 + 1;
             }
-
-            // Printing Init the array
-            printf(">>>>> Init the array <<<<<\n");
-            process(processes);
-
             // Sort the AT
             fcfsSort(processes);
-
-            // Printing After sorting AT
-            printf(">>>>> After sorting AT <<<<<\n");
-            process(processes);
 
             // Copy the BT
             for (i = 0; i < NUM_PROCESSES; i++)
@@ -150,18 +136,11 @@ main()
                 }
             }
 
-            // Printing the Sorted BT copy
-            printf(">>>>> After sorting BT <<<<<\n");
-            for (int i = 0; i < NUM_PROCESSES; i++)
-            {
-                printf("Process: %d Burst Time: %d\n", i, smallTime[i]);
-            }
+            // Sorting by SJF
+            sjfSort(processes, currentTime, temp2);
 
-            // Sorting OG
-            sjfSort(processes,sortedProcesses,currentTime,temp2);
-
-            // Printing After sorting OG
-            process(sortedProcesses);
+            // After sorting
+            process(processes);
 
             printf("Output written to the file successfully.\n");
 
