@@ -15,7 +15,9 @@ main()
     int choice;
     int loop = 0;
 
-    int i;
+    int currentTime = 0;
+
+    int i, j, temp2;
 
     float floatWaitTime;
     float floatTurnTime;
@@ -40,7 +42,10 @@ main()
 
     srand(time(NULL));
 
+    struct Process temp;
     struct Process processes[NUM_PROCESSES];
+    struct Process sortedProcesses[NUM_PROCESSES];
+    int smallTime[NUM_PROCESSES];
     // Generate random arrival time, burst time, and priority for each process
 
     if (file == NULL)
@@ -58,6 +63,7 @@ main()
         switch (choice)
         {
         case 1: // FCFS being the shortest
+            loop = 0;
             while (loop != 1)
             {
                 int x = 0;
@@ -90,123 +96,73 @@ main()
                 fprintf(file, "Shortest Average Response Time(FCFS): %.2f\n", floatResTime);
                 fprintf(file, "\n");
 
-                // sjf algo starts here
-
-                sjfSort(processes);
-                calculateTimes(processes);
-                process(processes);
-
-                floatTurnTime = avgTurnTime(processes);
-                floatWaitTime = avgWaitTime(processes);
-                floatResTime = avgResTime(processes);
-
-                turnArray[1] = floatTurnTime;
-                waitArray[1] = floatWaitTime;
-                resArray[1] = floatResTime;
-
-                printf("Shortest Average Turnaround Time(SJF): %.2f\n", floatTurnTime);
-                printf("Shortest Average Waiting Time(SJF): %.2f\n", floatWaitTime);
-                printf("Shortest Average Response Time(SJF): %.2f\n", floatResTime);
-                // Write output to the file
-                fprintf(file, "Shortest Average Turnaround Time(SJF): %.2f\n", floatTurnTime);
-                fprintf(file, "Shortest Average Waiting Time(SJF): %.2f\n", floatWaitTime);
-                fprintf(file, "Shortest Average Response Time(SJF): %.2f\n", floatResTime);
-                fprintf(file, "\n");
-
                 // Close the file
                 fclose(file);
+                printf("Output written to the file successfully.\n");
 
-                for (int i = 0; i < 5; i++)
-                {
-                    printf("Element %d: %.3f\n", i, turnArray[i]);
-                }
-                float smallestTurn = findSmallest(turnArray, 5);
-                float smallestWait = findSmallest(waitArray, 5);
-                float smallestRes = findSmallest(resArray, 5);
-
-                if (turnArray[0] == smallestTurn || waitArray[0] == smallestWait || resArray[0] == smallestRes)
-                {
-                    loop = 1;
-                }
+                loop = 1;
+                
             }
-
-            printf("Output written to the file successfully.\n");
-
-            option = 1;
-
             break;
-
         case 2: // SJF being the shortest
-            while (loop != 1)
+
+            for (i = 0; i < NUM_PROCESSES; i++)
             {
-                int x = 0;
-                for (i = 0; i < NUM_PROCESSES; i++)
+                processes[i].processID = i + 1;
+                processes[i].arrivalTime = rand() % 10;
+                processes[i].burstTime = rand() % 10 + 1;
+                processes[i].priority = rand() % 5 + 1;
+                sortedProcesses[i].processID = i + 1;
+                sortedProcesses[i].arrivalTime = rand() % 10;
+                sortedProcesses[i].burstTime = rand() % 10 + 1;
+                sortedProcesses[i].priority = rand() % 5 + 1;
+            }
+
+            // Printing Init the array
+            printf(">>>>> Init the array <<<<<\n");
+            process(processes);
+
+            // Sort the AT
+            fcfsSort(processes);
+
+            // Printing After sorting AT
+            printf(">>>>> After sorting AT <<<<<\n");
+            process(processes);
+
+            // Copy the BT
+            for (i = 0; i < NUM_PROCESSES; i++)
+            {
+                smallTime[i] = processes[i].burstTime;
+            }
+
+            // Sort the BT Copy
+            for (i = 0; i < NUM_PROCESSES; i++)
+            {
+                for (j = 0; j < NUM_PROCESSES - i - 1; j++)
                 {
-                    processes[i].processID = i + 1;
-                    processes[i].arrivalTime = rand() % 10 + x;
-                    processes[i].burstTime = rand() % 10 + 1 + x;
-                    processes[i].priority = rand() % 5 + 1 + x;
-                }
-                x += 1;
-                sjfSort(processes);
-                calculateTimes(processes);
-                process(processes);
-
-                floatTurnTime = avgTurnTime(processes);
-                floatWaitTime = avgWaitTime(processes);
-                floatResTime = avgResTime(processes);
-
-                turnArray[0] = floatTurnTime;
-                waitArray[0] = floatWaitTime;
-                resArray[0] = floatResTime;
-
-                printf("Shortest Average Turnaround Time(SJF): %.2f\n", floatTurnTime);
-                printf("Shortest Average Waiting Time(SJF): %.2f\n", floatWaitTime);
-                printf("Shortest Average Response Time(SJF): %.2f\n", floatResTime);
-                // Write output to the file
-                fprintf(file, "Shortest Average Turnaround Time(SJF): %.2f\n", floatTurnTime);
-                fprintf(file, "Shortest Average Waiting Time(SJF): %.2f\n", floatWaitTime);
-                fprintf(file, "Shortest Average Response Time(SJF): %.2f\n", floatResTime);
-                fprintf(file, "\n");
-
-                // fcfs algo starts here
-                fcfsSort(processes);
-                calculateTimes(processes);
-                process(processes);
-
-                floatTurnTime = avgTurnTime(processes);
-                floatWaitTime = avgWaitTime(processes);
-                floatResTime = avgResTime(processes);
-
-                turnArray[1] = floatTurnTime;
-                waitArray[1] = floatWaitTime;
-                resArray[1] = floatResTime;
-
-                printf("Shortest Average Turnaround Time(FCFS): %.2f\n", floatTurnTime);
-                printf("Shortest Average Waiting Time(FCFS): %.2f\n", floatWaitTime);
-                printf("Shortest Average Response Time(FCFS): %.2f\n", floatResTime);
-                // Write output to the file
-                fprintf(file, "Shortest Average Turnaround Time(FCFS): %.2f\n", floatTurnTime);
-                fprintf(file, "Shortest Average Waiting Time(FCFS): %.2f\n", floatWaitTime);
-                fprintf(file, "Shortest Average Response Time(FCFS): %.2f\n", floatResTime);
-                fprintf(file, "\n");
-
-                // Close the file
-                fclose(file);
-
-                for (int i = 0; i < 5; i++)
-                {
-                    printf("Element %d: %.3f\n", i, turnArray[i]);
-                }
-                float smallestTurn = findSmallest(turnArray, 5);
-                float smallestWait = findSmallest(waitArray, 5);
-                float smallestRes = findSmallest(resArray, 5);
-
-                if (turnArray[0] == smallestTurn || waitArray[0] == smallestWait || resArray[0] == smallestRes)
-                {
-                    loop = 1;
+                    if (smallTime[j] > smallTime[j + 1])
+                    {
+                        // Swap the elements
+                        temp2 = smallTime[j];
+                        smallTime[j] = smallTime[j + 1];
+                        smallTime[j + 1] = temp2;
+                    }
                 }
             }
+
+            // Printing the Sorted BT copy
+            printf(">>>>> After sorting BT <<<<<\n");
+            for (int i = 0; i < NUM_PROCESSES; i++)
+            {
+                printf("Process: %d Burst Time: %d\n", i, smallTime[i]);
+            }
+
+            // Sorting OG
+            sjfSort(processes,sortedProcesses,currentTime,temp2);
+
+            // Printing After sorting OG
+            process(sortedProcesses);
+
             printf("Output written to the file successfully.\n");
 
             option = 1;
