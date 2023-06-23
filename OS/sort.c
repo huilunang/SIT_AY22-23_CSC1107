@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_PROCESSES 8
+#define NUM_PROCESSES 6
 
 struct Process
 {
@@ -111,11 +111,9 @@ void fcfsSort(struct Process processes[])
       }
    }
 }
-void sjfSort(struct Process processes[],struct Process sortedProcesses[],int currentTime,int temp2)
+void sjfSort(struct Process processes[],int currentTime,int temp2)
 {
    currentTime = processes[0].arrivalTime + processes[0].burstTime;
-   sortedProcesses[0].arrivalTime = processes[0].arrivalTime;
-   sortedProcesses[0].burstTime = processes[0].burstTime;
    for (int i = 1; i < NUM_PROCESSES; i++)
    {
       if (processes[i].arrivalTime > currentTime)
@@ -152,11 +150,11 @@ void sjfSort(struct Process processes[],struct Process sortedProcesses[],int cur
       currentTime += processes[fastestIndex].burstTime;
       temp2 = processes[fastestIndex].arrivalTime;
       processes[fastestIndex].arrivalTime = processes[i].arrivalTime;
-      sortedProcesses[i].arrivalTime = temp2;
+      processes[i].arrivalTime = temp2;
 
       temp2 = processes[fastestIndex].burstTime;
       processes[fastestIndex].burstTime = processes[i].burstTime;
-      sortedProcesses[i].burstTime = temp2;
+      processes[i].burstTime = temp2;
    }
 }
 
