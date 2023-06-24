@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define NUM_PROCESSES 6
 
@@ -155,6 +156,54 @@ void sjfSort(struct Process processes[],int currentTime,int temp2)
       temp2 = processes[fastestIndex].burstTime;
       processes[fastestIndex].burstTime = processes[i].burstTime;
       processes[i].burstTime = temp2;
+   }
+}
+
+void srtfSort(struct Process processes[], int n)
+{
+   int current_time = 0;
+   int completed = 0;
+   int shortest_process = 0;
+   int remaining_time[n];
+
+   for (int i = 0; i < n; i++)
+   {
+      remaining_time[i] = processes[i].burstTime;
+   }
+
+   while (completed != n)
+   {
+      shortest_process = -1;
+      int shortest_time = INT_MAX;
+
+      // Find the process with the shortest remaining time
+      for (int i = 0; i < n; i++)
+      {
+         if (processes[i].arrivalTime <= current_time && remaining_time[i] < shortest_time && remaining_time[i] > 0)
+         {
+            shortest_process = i;
+            shortest_time = remaining_time[i];
+         }
+      }
+
+      if (shortest_process == -1)
+      {
+         current_time++;
+         continue;
+      }
+
+      // Decrement the remaining time of the shortest process
+      remaining_time[shortest_process]--;
+
+      // Check if the process has completed
+      if (remaining_time[shortest_process] == 0)
+      {
+         completed++;
+         processes[shortest_process].completionTime = current_time + 1;
+         processes[shortest_process].turnaroundTime = processes[shortest_process].completionTime - processes[shortest_process].arrivalTime;
+         processes[shortest_process].waitingTime = processes[shortest_process].turnaroundTime - processes[shortest_process].burstTime;
+      }
+      current_time++;
    }
 }
 
