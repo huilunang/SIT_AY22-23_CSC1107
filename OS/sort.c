@@ -207,22 +207,51 @@ void srtfSort(struct Process processes[], int n)
    }
 }
 
-void prioSort(struct Process processes[])
+void prioSort(struct Process processes[], int n)
 {
-   int i, j;
-   struct Process temp;
+   int current_time = 0;
+   int completed = 0;
+   int prioritized_process = 0;
+   int remaining_time[n];
 
-   for (i = 0; i < NUM_PROCESSES - 1; i++)
+   for (int i = 0; i < n; i++)
    {
-      for (j = i + 1; j < NUM_PROCESSES; j++)
+      remaining_time[i] = processes[i].burstTime;
+   }
+
+   while (completed != n)
+   {
+      prioritized_process = -1;
+      int priority = INT_MAX;
+
+      // Find the process with the shortest remaining time
+      for (int i = 0; i < n; i++)
       {
-         if (processes[i].priority > processes[j].priority)
+         if (processes[i].arrivalTime <= current_time && processes[i].priority < priority && remaining_time[i] > 0)
          {
-            temp = processes[i];
-            processes[i] = processes[j];
-            processes[j] = temp;
+            prioritized_process = i;
+            priority = processes[i].priority;
          }
       }
+
+      if (prioritized_process == -1)
+      {
+         current_time++;
+         continue;
+      }
+
+      // Decrement the remaining time of the shortest process
+      remaining_time[prioritized_process]--;
+
+      // Check if the process has completed
+      if (remaining_time[prioritized_process] == 0)
+      {
+         completed++;
+         processes[prioritized_process].completionTime = current_time + 1;
+         processes[prioritized_process].turnaroundTime = processes[prioritized_process].completionTime - processes[prioritized_process].arrivalTime;
+         processes[prioritized_process].waitingTime = processes[prioritized_process].turnaroundTime - processes[prioritized_process].burstTime;
+      }
+      current_time++;
    }
 }
 

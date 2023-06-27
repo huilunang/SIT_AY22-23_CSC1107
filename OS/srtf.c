@@ -1,123 +1,144 @@
 #include <stdio.h>
-    struct Jobs
+#include <stdlib.h>
+#include <limits.h>
+#define NUM_PROCESSES 6
+
+
+struct Process
+{
+    int processID;
+    int arrivalTime;
+    int burstTime;
+    int priority;
+    int waitingTime;
+    int turnaroundTime;
+    int responseTime;
+    int completionTime;
+};
+
+void srtfSort(struct Process processes[], int n)
+{
+    int current_time = 0;
+    int completed = 0;
+    int shortest_process = 0;
+    int remaining_time[n];
+
+    for (int i = 0; i < n; i++)
     {
-        int id;
-        int burst;
-        int arrival;
-    };
-    
-    struct srtf
+        remaining_time[i] = processes[i].burstTime;
+    }
+
+    while (completed != n)
     {
-        int id;
-    };
+        shortest_process = -1;
+        int shortest_time = INT_MAX;
 
-int isJobsAvailable (struct Jobs jobs[]) {
-    for (int i = 0; i < sizeof(jobs); i++) {
-        printf("Job %d has burst %d \n", jobs[i].id, jobs[i].burst);
-        if (jobs[i].burst > 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-int findJobsIndexByID (struct Jobs jobs[], int id) {
-    for (int i = 0; i < sizeof(jobs); i++) {
-        if (jobs[i].id == id) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-int findLowestBurst (struct Jobs jobs[]) {
-    int lowestBurst = jobs[0].burst;
-    int lowestBurstID = jobs[0].id;
-    for (int i = 0; i < sizeof(jobs); i++) {
-        if (jobs[i].burst > 0) {
-            lowestBurst = jobs[i].burst;
-            lowestBurstID = jobs[i].id;
-        }
-    }
-    for (int i = 0; i < sizeof(jobs); i++) {
-        if (jobs[i].burst < lowestBurst) {
-            if (jobs[i].burst > 0) {
-            lowestBurst = jobs[i].burst;
-            lowestBurstID = jobs[i].id;
+        // Find the process with the shortest remaining time
+        for (int i = 0; i < n; i++)
+        {
+            if (processes[i].arrivalTime <= current_time && remaining_time[i] < shortest_time && remaining_time[i] > 0)
+            {
+                shortest_process = i;
+                shortest_time = remaining_time[i];
             }
         }
+
+        if (shortest_process == -1)
+        {
+            current_time++;
+            continue;
+        }
+
+        // Decrement the remaining time of the shortest process
+        remaining_time[shortest_process]--;
+
+        // Check if the process has completed
+        if (remaining_time[shortest_process] == 0)
+        {
+            completed++;
+            processes[shortest_process].completionTime = current_time + 1;
+            processes[shortest_process].turnaroundTime = processes[shortest_process].completionTime - processes[shortest_process].arrivalTime;
+            processes[shortest_process].waitingTime = processes[shortest_process].turnaroundTime - processes[shortest_process].burstTime;
+            //printf("Process %d: Completion Time = %d, Turnaround Time = %d, Waiting Time = %d\n",processes[shortest_process].processID, processes[shortest_process].completionTime, processes[shortest_process].turnaroundTime, processes[shortest_process].waitingTime);
+        }
+        current_time++;
     }
-    return lowestBurstID;
 }
 
-int main() {
-	// Matrix for storing Process Id, Burst
-	// Time, Average Waiting Time & Average
-	// Turn Around Time.
-	int A[100][4];
-	int i, j, n, total = 0, index, temp;
-	float avg_wt, avg_tat;
-	// printf("Enter number of process: ");
-	// scanf("%d", &n);
-    n = 6;
-    struct Jobs jobs[n];
+void calculateTimes(struct Process processes[])
+{
+   int currentTime = 0;
+   int i;
 
-	// User Input Burst Time and alloting Process Id.
-	for (i = 0; i < n; i++) {
-        jobs[i].id = i + 1;
-        jobs[i].burst = 5;
-        jobs[i].arrival = 0;
-		// printf("Enter the Burst Time for P%d: ", jobs[i].id);
-		// scanf("%d", &jobs[i].burst);
-        // printf("Enter the Arrival Time for P%d: ", jobs[i].id);
-        // scanf("%d", &jobs[i].arrival);
-	}
+   for (i = 0; i < NUM_PROCESSES; i++)
+   {
+      if (currentTime < processes[i].arrivalTime)
+      {
+         currentTime = processes[i].arrivalTime;
+      }
 
-    // Sorting process according to their Burst Time.
-    // For each step in the arrival time
-    struct srtf sortedJobs[100];
-    int time = 0;
-	while (isJobsAvailable(jobs)) {
-        printf("Loop start \n");
-        // Find the job with the lowest burst time that is not 0
-        int lowestBurstID = findLowestBurst(jobs);
+      processes[i].waitingTime = currentTime - processes[i].arrivalTime;
+      processes[i].turnaroundTime = processes[i].waitingTime + processes[i].burstTime;
+      processes[i].responseTime = processes[i].waitingTime;
 
-        // Add the job and to the burst time
-        sortedJobs[time].id = lowestBurstID;
-        jobs[findJobsIndexByID(jobs, lowestBurstID)].burst--;
-        // Return to the top of the loop
-        time++;
-        if (time > 30) {
-            break;
+      currentTime += processes[i].burstTime;
+   }
+}
+
+void print_gantt_chart(struct Process processes[], int n) {
+    printf("Gantt Chart:\n");
+
+    // Find the maximum completion time
+    int max_completion_time = 0;
+    for (int i = 0; i < n; i++) {
+        if (processes[i].completionTime > max_completion_time) {
+            max_completion_time = processes[i].completionTime;
         }
-	}
-
-    for ( i = 0; i < sizeof(sortedJobs); i++)
-    {
-        printf("%d", sortedJobs[i].id);
     }
 
-    /*
-	// Calculation of Waiting Times
-	for (i = 1; i < n; i++) {
-		A[i][2] = 0;
-		for (j = 0; j < i; j++)
-			A[i][2] += A[j][1];
-		total += A[i][2];
-	}
-	avg_wt = (float)total / n;
-	total = 0;
-	printf("P	 BT	 WT	 TAT\n");
+    // Print the top line of the Gantt chart
+    printf(" ");
+    for (int i = 0; i < max_completion_time; i++) {
+        printf("--");
+    }
+    printf("\n");
 
-	// Calculation of Turn Around Time and printing the
-	// data.
-	for (i = 0; i < n; i++) {
-		A[i][3] = A[i][1] + A[i][2];
-		total += A[i][3];
-		printf("P%d	 %d	 %d	 %d\n", A[i][0],
-			A[i][1], A[i][2], A[i][3]);
-	}
-	avg_tat = (float)total / n;
-	printf("Average Waiting Time= %f", avg_wt);
-	printf("\nAverage Turnaround Time= %f", avg_tat);*/
+    // Print the process IDs and bars
+    printf("|");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < processes[i].burstTime; j++) {
+            printf("P%d", processes[i].processID);
+        }
+        printf("|");
+    }
+    printf("\n");
+
+    // Print the bottom line of the Gantt chart
+    printf(" ");
+    for (int i = 0; i < max_completion_time; i++) {
+        printf("--");
+    }
+    printf("\n");
+}
+
+int main()
+{
+    // Example processes
+    struct Process processes[] = {
+        {1, 0, 6, 6, 0, 0, 0, 0},
+        {2, 1, 8, 8, 0, 0, 0, 0},
+        {3, 2, 7, 7, 0, 0, 0, 0},
+        {4, 3, 3, 3, 0, 0, 0, 0},
+    };
+    int num_processes = sizeof(processes) / sizeof(processes[0]);
+    srtfSort(processes, num_processes);
+    // Show the processes
+    printf("Processes:\n");
+    for (int i = 0; i < num_processes; i++) {
+        printf("\nProcess %d: Arrival Time = %d, Burst Time = %d, Priority = %d\n", processes[i].processID, processes[i].arrivalTime, processes[i].burstTime, processes[i].priority);
+        printf("Process %d: Completion Time = %d, Turnaround Time = %d, Waiting Time = %d\n",processes[i].processID, processes[i].completionTime, processes[i].turnaroundTime, processes[i].waitingTime);
+    }
+    print_gantt_chart(processes, num_processes);
+
+    return 0;
 }
