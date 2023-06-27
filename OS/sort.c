@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #define NUM_PROCESSES 6
 
@@ -47,7 +46,6 @@ void process(struct Process processes[])
              processes[i].arrivalTime, processes[i].burstTime, processes[i].priority);
    }
 }
-
 
 float avgTurnTime(struct Process processes[])
 {
@@ -112,7 +110,8 @@ void fcfsSort(struct Process processes[])
       }
    }
 }
-void sjfSort(struct Process processes[],int currentTime,int temp2)
+
+void sjfSort(struct Process processes[], int currentTime, int temp2)
 {
    currentTime = processes[0].arrivalTime + processes[0].burstTime;
    for (int i = 1; i < NUM_PROCESSES; i++)
@@ -159,8 +158,9 @@ void sjfSort(struct Process processes[],int currentTime,int temp2)
    }
 }
 
-void srtfSort(struct Process processes[], int n)
+void srtfSort(struct Process processes[])
 {
+   int n =5;
    int current_time = 0;
    int completed = 0;
    int shortest_process = 0;
@@ -202,6 +202,7 @@ void srtfSort(struct Process processes[], int n)
          processes[shortest_process].completionTime = current_time + 1;
          processes[shortest_process].turnaroundTime = processes[shortest_process].completionTime - processes[shortest_process].arrivalTime;
          processes[shortest_process].waitingTime = processes[shortest_process].turnaroundTime - processes[shortest_process].burstTime;
+         // printf("Process %d: Completion Time = %d, Turnaround Time = %d, Waiting Time = %d\n",processes[shortest_process].processID, processes[shortest_process].completionTime, processes[shortest_process].turnaroundTime, processes[shortest_process].waitingTime);
       }
       current_time++;
    }
@@ -255,6 +256,10 @@ void prioSort(struct Process processes[], int n)
    }
 }
 
+
+
+
+
 float findSmallest(float array[], int size)
 {
    float smallest = array[0]; // Assume the first element is the smallest
@@ -268,4 +273,55 @@ float findSmallest(float array[], int size)
    }
 
    return smallest;
+}
+
+void writeFile(struct Process processes[], FILE *file, char name[])
+{
+
+   float floatTurnTime = avgTurnTime(processes);
+   float floatWaitTime = avgWaitTime(processes);
+   float floatResTime = avgResTime(processes);
+
+   float waitArray[5];
+   float turnArray[5];
+   float resArray[5];
+
+   turnArray[0] = floatTurnTime;
+   waitArray[0] = floatWaitTime;
+   resArray[0] = floatResTime;
+
+   // delete once rest of code is implemented
+   turnArray[2] = 100;
+   waitArray[2] = 100;
+   resArray[2] = 100;
+   turnArray[3] = 100;
+   waitArray[3] = 100;
+   resArray[3] = 100;
+   turnArray[4] = 100;
+   waitArray[4] = 100;
+   resArray[4] = 100;
+
+   printf("Shortest Average Turnaround Time(%s): %.2f\n", name, floatTurnTime);
+   printf("Shortest Average Waiting Time(%s): %.2f\n", name, floatWaitTime);
+   printf("Shortest Average Response Time(%s): %.2f\n", name, floatResTime);
+   // Write output to the file
+   fprintf(file, "Shortest Average Turnaround Time(%s): %.2f\n", name, floatTurnTime);
+   fprintf(file, "Shortest Average Waiting Time(%s): %.2f\n", name, floatWaitTime);
+   fprintf(file, "Shortest Average Response Time(%s): %.2f\n", name, floatResTime);
+   fprintf(file, "\n");
+
+   // Close the file
+   fclose(file);
+   printf("Output written to the file successfully.\n");
+}
+
+void randomProcess(struct Process processes[])
+{
+   for (int i = 0; i < NUM_PROCESSES; i++)
+   {
+      processes[i].processID = i + 1;
+      processes[i].arrivalTime = rand() % 10;
+      processes[i].burstTime = rand() % 10 + 1;
+      processes[i].priority = rand() % 5 + 1;
+   }
 }
