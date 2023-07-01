@@ -49,9 +49,8 @@ main()
             for(int i =0;i<6;i++){
                 processes2[i]=processes[i];
             }
-            
-            process(processes);
-            process(processes2);
+            //process(processes);
+            //process(processes2);
 
             fcfsSort(processes);
             calculateTimes(processes);
@@ -81,6 +80,11 @@ main()
             //reset back to original
             reset(processes,processes2);
             //RR start here
+            randomProcess(processes);
+            rrSort(processes);
+            calculateTimes(processes);
+            process(processes);
+            writeFile(processes, file, "RR");
 
             //PS start here
             prioSort(processes);
@@ -108,27 +112,23 @@ main()
         case 3: // srtf
             randomProcess(processes);
             srtfSort(processes);
-            calculateTimes(processes);
+            //calculateTimes(processes);
             process(processes);
             writeFile(processes, file, "SRTF");
             break;
         case 4: // RR
-            printf("1");
             randomProcess(processes);
-            printf("2");
             rrSort(processes);
-            printf("3");
-
             calculateTimes(processes);
-            printf("4");
             process(processes);
             writeFile(processes, file, "RR");
 
             break;
         case 5:
+            //PS
             randomProcess(processes);
             prioSort(processes);
-            calculateTimes(processes);
+            //calculateTimes(processes);
             process(processes);
             writeFile(processes, file, "PS");
             break;
