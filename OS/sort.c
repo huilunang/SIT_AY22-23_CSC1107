@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #define NUM_PROCESSES 6
+#define TIME_QUANTUM 2
 
 struct Process
 {
@@ -14,6 +14,9 @@ struct Process
    int turnaroundTime;
    int responseTime;
    int completionTime;
+   int remaining_time;
+   int start_time;
+   int end_time;
 };
 
 void calculateTimes(struct Process processes[])
@@ -214,8 +217,9 @@ void srtfSort(struct Process processes[])
    }
 }
 
-void prioSort(struct Process processes[], int n)
+void prioSort(struct Process processes[])
 {
+   int n = 6;
    int current_time = 0;
    int completed = 0;
    int prioritized_process = 0;
@@ -269,8 +273,74 @@ void prioSort(struct Process processes[], int n)
 }
 
 
+void rrSort(struct Process processes[]) {
+    int total_time = 0;
+    int completed_processes = 0;
+    int current_time = 0;
+    int next_process_id = 1;
 
+   struct Process temp;
 
+    while (completed_processes < NUM_PROCESSES) {
+        int selected_process = -1;
+
+        for (int i = 0; i < NUM_PROCESSES; i++) {
+            if (processes[i].processID == next_process_id && processes[i].arrivalTime <= current_time && processes[i].remaining_time > 0) {
+                selected_process = i;
+                break;
+            }
+        }
+
+        if (selected_process == -1) {
+            for (int i = 0; i < NUM_PROCESSES; i++) {
+                if (processes[i].arrivalTime <= current_time && processes[i].remaining_time > 0) {
+                    if (selected_process == -1) {
+                        selected_process = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (selected_process == -1) {
+            current_time++;
+            continue;
+        }
+
+        if (processes[selected_process].start_time == -1) processes[selected_process].start_time = current_time;
+
+        int execution_time = (processes[selected_process].remaining_time <= TIME_QUANTUM)
+                                 ? processes[selected_process].remaining_time
+                                 : TIME_QUANTUM;
+
+        total_time += execution_time;
+        processes[selected_process].remaining_time -= execution_time;
+        current_time += execution_time;
+
+        printf("Process %d executed for %d units of time.\n", processes[selected_process].processID,
+               execution_time);
+
+        if (processes[selected_process].remaining_time == 0) {
+            processes[selected_process].end_time = current_time;
+            completed_processes++;
+        }
+
+        next_process_id = processes[selected_process].processID + 1;
+        if (next_process_id == 7) next_process_id = 1;
+
+        // Perform Round Robin
+        if (processes[selected_process].remaining_time > 0) {
+            // Move the process to the end of the queue
+            temp = processes[selected_process];
+            for (int i = selected_process; i < NUM_PROCESSES - 1; i++) {
+                processes[i] = processes[i + 1];
+            }
+            processes[NUM_PROCESSES - 1] = temp;
+        }
+    }
+
+    printf("Total execution time: %d\n", total_time);
+}
 
 float findSmallest(float array[], int size)
 {
@@ -323,7 +393,6 @@ void writeFile(struct Process processes[], FILE *file, char name[])
    fprintf(file, "\n");
 
    // Close the file
-   fclose(file);
    printf("Output written to the file successfully.\n");
 }
 
@@ -335,5 +404,37 @@ void randomProcess(struct Process processes[])
       processes[i].arrivalTime = rand() % 10;
       processes[i].burstTime = rand() % 10 + 1;
       processes[i].priority = rand() % 5 + 1;
+
+   }
+}
+
+void burstTimeSort(struct Process processes[],int smallTime[NUM_PROCESSES],int temp2)
+{
+   // Copy the BT
+   for (int i = 0; i < NUM_PROCESSES; i++)
+   {
+      smallTime[i] = processes[i].burstTime;
+   }
+
+   // Sort the BT Copy
+   for (int i = 0; i < NUM_PROCESSES; i++)
+   {
+      for (int j = 0; j < NUM_PROCESSES - i - 1; j++)
+      {
+         if (smallTime[j] > smallTime[j + 1])
+         {
+            // Swap the elements
+            temp2 = smallTime[j];
+            smallTime[j] = smallTime[j + 1];
+            smallTime[j + 1] = temp2;
+         }
+      }
+   }
+}
+
+void reset(struct Process processes[],struct Process processes2[]){
+      //reset back to original
+   for(int i =0;i<6;i++){
+      processes[i]=processes2[i];
    }
 }
