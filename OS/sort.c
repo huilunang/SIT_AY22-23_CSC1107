@@ -19,17 +19,17 @@ struct Process
    int end_time;
 };
 
-//edit
+// edit
 void calculateTimes(struct Process processes[])
 {
    // Waiting Time = Turnaround Time - Burst Time
-   // Turnaround Time = Exit Time - Arrival Time 
+   // Turnaround Time = Exit Time - Arrival Time
    // Response Time = Start Time - Arrival Time
    for (int i = 0; i < NUM_PROCESSES; i++)
    {
       processes[i].turnaroundTime = processes[i].end_time - processes[i].arrivalTime;
       processes[i].waitingTime = processes[i].turnaroundTime - processes[i].burstTime;
-      processes[i].responseTime = processes[i].start_time-processes[i].arrivalTime;
+      processes[i].responseTime = processes[i].start_time - processes[i].arrivalTime;
    }
 }
 
@@ -45,7 +45,7 @@ void process(struct Process processes[])
    }
 }
 
-//edit
+// edit
 float avgTurnTime(struct Process processes[])
 {
    float sumTurnaroundTime = 0;
@@ -61,7 +61,7 @@ float avgTurnTime(struct Process processes[])
    return avgTurnaroundTime;
 }
 
-//edit
+// edit
 float avgWaitTime(struct Process processes[])
 {
    float sumWaitingTime = 0;
@@ -77,7 +77,7 @@ float avgWaitTime(struct Process processes[])
    return avgWaitingTime;
 }
 
-//edit
+// edit
 float avgResTime(struct Process processes[])
 {
    float sumResponseTime = 0;
@@ -95,12 +95,11 @@ float avgResTime(struct Process processes[])
 
 void fcfsSort(struct Process processes[])
 {
-   int i, j;
    struct Process temp;
 
-   for (i = 0; i < NUM_PROCESSES - 1; i++)
+   for (int i = 0; i < NUM_PROCESSES - 1; i++)
    {
-      for (j = i + 1; j < NUM_PROCESSES; j++)
+      for (int j = i + 1; j < NUM_PROCESSES; j++)
       {
          if (processes[i].arrivalTime > processes[j].arrivalTime)
          {
@@ -110,10 +109,18 @@ void fcfsSort(struct Process processes[])
          }
       }
    }
+   int currentTime = 0;
+   for (int i = 0; i < NUM_PROCESSES; i++)
+   {
+      processes[i].start_time = currentTime;
+      currentTime += processes[i].burstTime;
+      processes[i].end_time = currentTime;
+   }
 }
 
 void sjfSort(struct Process processes[], int currentTime, int temp2)
 {
+   int total_time = 0;
    currentTime = processes[0].arrivalTime + processes[0].burstTime;
    for (int i = 1; i < NUM_PROCESSES; i++)
    {
@@ -156,6 +163,9 @@ void sjfSort(struct Process processes[], int currentTime, int temp2)
       temp2 = processes[fastestIndex].burstTime;
       processes[fastestIndex].burstTime = processes[i].burstTime;
       processes[i].burstTime = temp2;
+      processes[i].start_time = currentTime - processes[i].burstTime;  // Set start time for the current process
+      processes[i].end_time = processes[i].start_time + processes[i].burstTime; 
+      total_time += processes[i].burstTime;
    }
 }
 
@@ -195,7 +205,7 @@ void srtfSort(struct Process processes[])
          continue;
       }
       if (start_time[shortest_process] == -1)
-         start_time[shortest_process] = current_time;
+         processes[shortest_process].start_time = current_time;
 
       // Decrement the remaining time of the shortest process
       remaining_time[shortest_process]--;
@@ -204,10 +214,9 @@ void srtfSort(struct Process processes[])
       if (remaining_time[shortest_process] == 0)
       {
          completed++;
-         processes[shortest_process].completionTime = current_time + 1;
-         processes[shortest_process].turnaroundTime = processes[shortest_process].completionTime - processes[shortest_process].arrivalTime;
+         processes[shortest_process].end_time = current_time + 1;
+         processes[shortest_process].turnaroundTime = processes[shortest_process].end_time - processes[shortest_process].arrivalTime;
          processes[shortest_process].waitingTime = processes[shortest_process].turnaroundTime - processes[shortest_process].burstTime;
-         processes[shortest_process].responseTime = processes[shortest_process].arrivalTime;
          processes[shortest_process].responseTime = start_time[shortest_process] - processes[shortest_process].arrivalTime;
          // printf("Process %d: Completion Time = %d, Turnaround Time = %d, Waiting Time = %d\n",processes[shortest_process].processID, processes[shortest_process].completionTime, processes[shortest_process].turnaroundTime, processes[shortest_process].waitingTime);
       }
@@ -252,7 +261,7 @@ void prioSort(struct Process processes[])
       }
 
       if (start_time[prioritized_process] == -1)
-         start_time[prioritized_process] = current_time;
+         processes[prioritized_process].start_time = current_time;
 
       // Decrement the remaining time of the shortest process
       remaining_time[prioritized_process]--;
@@ -261,83 +270,96 @@ void prioSort(struct Process processes[])
       if (remaining_time[prioritized_process] == 0)
       {
          completed++;
-         processes[prioritized_process].completionTime = current_time + 1;
-         processes[prioritized_process].turnaroundTime = processes[prioritized_process].completionTime - processes[prioritized_process].arrivalTime;
+         processes[prioritized_process].end_time = current_time + 1;
+         processes[prioritized_process].turnaroundTime = processes[prioritized_process].end_time - processes[prioritized_process].arrivalTime;
          processes[prioritized_process].waitingTime = processes[prioritized_process].turnaroundTime - processes[prioritized_process].burstTime;
          processes[prioritized_process].responseTime = start_time[prioritized_process] - processes[prioritized_process].arrivalTime;
-
       }
       current_time++;
    }
 }
 
-void rrSort(struct Process processes[]) {
-    int total_time = 0;
-    int completed_processes = 0;
-    int current_time = 0;
-    int next_process_id = 1;
+void rrSort(struct Process processes[])
+{
+   int total_time = 0;
+   int completed_processes = 0;
+   int current_time = 0;
+   int next_process_id = 1;
 
    struct Process temp;
 
-    while (completed_processes < NUM_PROCESSES) {
-        int selected_process = -1;
+   while (completed_processes < NUM_PROCESSES)
+   {
+      int selected_process = -1;
 
-        for (int i = 0; i < NUM_PROCESSES; i++) {
-            if (processes[i].processID == next_process_id && processes[i].arrivalTime <= current_time && processes[i].remaining_time > 0) {
-                selected_process = i;
-                break;
+      for (int i = 0; i < NUM_PROCESSES; i++)
+      {
+         if (processes[i].processID == next_process_id && processes[i].arrivalTime <= current_time && processes[i].remaining_time > 0)
+         {
+            selected_process = i;
+            break;
+         }
+      }
+
+      if (selected_process == -1)
+      {
+         for (int i = 0; i < NUM_PROCESSES; i++)
+         {
+            if (processes[i].arrivalTime <= current_time && processes[i].remaining_time > 0)
+            {
+               if (selected_process == -1)
+               {
+                  selected_process = i;
+                  break;
+               }
             }
-        }
+         }
+      }
 
-        if (selected_process == -1) {
-            for (int i = 0; i < NUM_PROCESSES; i++) {
-                if (processes[i].arrivalTime <= current_time && processes[i].remaining_time > 0) {
-                    if (selected_process == -1) {
-                        selected_process = i;
-                        break;
-                    }
-                }
-            }
-        }
+      if (selected_process == -1)
+      {
+         current_time++;
+         continue;
+      }
 
-        if (selected_process == -1) {
-            current_time++;
-            continue;
-        }
+      if (processes[selected_process].start_time == -1)
+         processes[selected_process].start_time = current_time;
 
-        if (processes[selected_process].start_time == -1) processes[selected_process].start_time = current_time;
+      int execution_time = (processes[selected_process].remaining_time <= TIME_QUANTUM)
+                               ? processes[selected_process].remaining_time
+                               : TIME_QUANTUM;
 
-        int execution_time = (processes[selected_process].remaining_time <= TIME_QUANTUM)
-                                 ? processes[selected_process].remaining_time
-                                 : TIME_QUANTUM;
+      total_time += execution_time;
+      processes[selected_process].remaining_time -= execution_time;
+      current_time += execution_time;
 
-        total_time += execution_time;
-        processes[selected_process].remaining_time -= execution_time;
-        current_time += execution_time;
+      printf("Process %d executed for %d units of time.\n", processes[selected_process].processID,
+             execution_time);
 
-        printf("Process %d executed for %d units of time.\n", processes[selected_process].processID,
-               execution_time);
+      if (processes[selected_process].remaining_time == 0)
+      {
+         processes[selected_process].end_time = current_time;
+         completed_processes++;
+      }
 
-        if (processes[selected_process].remaining_time == 0) {
-            processes[selected_process].end_time = current_time;
-            completed_processes++;
-        }
+      next_process_id = processes[selected_process].processID + 1;
+      if (next_process_id == 7)
+         next_process_id = 1;
 
-        next_process_id = processes[selected_process].processID + 1;
-        if (next_process_id == 7) next_process_id = 1;
+      // Perform Round Robin
+      if (processes[selected_process].remaining_time > 0)
+      {
+         // Move the process to the end of the queue
+         temp = processes[selected_process];
+         for (int i = selected_process; i < NUM_PROCESSES - 1; i++)
+         {
+            processes[i] = processes[i + 1];
+         }
+         processes[NUM_PROCESSES - 1] = temp;
+      }
+   }
 
-        // Perform Round Robin
-        if (processes[selected_process].remaining_time > 0) {
-            // Move the process to the end of the queue
-            temp = processes[selected_process];
-            for (int i = selected_process; i < NUM_PROCESSES - 1; i++) {
-                processes[i] = processes[i + 1];
-            }
-            processes[NUM_PROCESSES - 1] = temp;
-        }
-    }
-
-    printf("Total execution time: %d\n", total_time);
+   printf("Total execution time: %d\n", total_time);
 }
 
 float findSmallest(float array[], int size)
@@ -402,15 +424,14 @@ void randomProcess(struct Process processes[])
       processes[i].arrivalTime = rand() % 10;
       processes[i].burstTime = rand() % 10 + 1;
       processes[i].priority = rand() % 5 + 1;
-   
-      processes[i].remaining_time = processes[i].burstTime;  
+
+      processes[i].remaining_time = processes[i].burstTime;
       processes[i].start_time = -1;
       processes[i].end_time = 0;
-
    }
 }
 
-void burstTimeSort(struct Process processes[],int smallTime[NUM_PROCESSES],int temp2)
+void burstTimeSort(struct Process processes[], int smallTime[NUM_PROCESSES], int temp2)
 {
    // Copy the BT
    for (int i = 0; i < NUM_PROCESSES; i++)
@@ -434,9 +455,11 @@ void burstTimeSort(struct Process processes[],int smallTime[NUM_PROCESSES],int t
    }
 }
 
-void reset(struct Process processes[],struct Process processes2[]){
-      //reset back to original
-   for(int i =0;i<6;i++){
-      processes[i]=processes2[i];
+void reset(struct Process processes[], struct Process processes2[])
+{
+   // reset back to original
+   for (int i = 0; i < 6; i++)
+   {
+      processes[i] = processes2[i];
    }
 }
