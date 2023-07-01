@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define NUM_PROCESSES 6
 #define TIME_QUANTUM 2
@@ -174,6 +175,7 @@ void srtfSort(struct Process processes[])
    for (int i = 0; i < n; i++)
    {
       remaining_time[i] = processes[i].burstTime;
+      start_time[i] = -1;
    }
 
    while (completed != n)
@@ -196,7 +198,7 @@ void srtfSort(struct Process processes[])
          current_time++;
          continue;
       }
-      if (start_time[shortest_process] == NULL)
+      if (start_time[shortest_process] == -1)
          start_time[shortest_process] = current_time;
 
       // Decrement the remaining time of the shortest process
@@ -229,6 +231,7 @@ void prioSort(struct Process processes[])
    for (int i = 0; i < n; i++)
    {
       remaining_time[i] = processes[i].burstTime;
+      start_time[i] = -1;
    }
 
    while (completed != n)
@@ -252,7 +255,7 @@ void prioSort(struct Process processes[])
          continue;
       }
 
-      if (start_time[prioritized_process] == NULL)
+      if (start_time[prioritized_process] == -1)
          start_time[prioritized_process] = current_time;
 
       // Decrement the remaining time of the shortest process

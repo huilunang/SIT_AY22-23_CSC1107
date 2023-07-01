@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#define NUM_PROCESSES 6
+#define NUM_PROCESSES 4
 
 struct Process
 {
@@ -65,8 +65,9 @@ void printList(struct Node *node)
 }
 
 
-void srtfSort(struct Process processes[], int n, struct Node *head)
+void srtfSort(struct Process processes[], struct Node *head)
 {
+    int n = NUM_PROCESSES;
     int current_time = 0;
     int completed = 0;
     int shortest_process = 0;
@@ -76,6 +77,7 @@ void srtfSort(struct Process processes[], int n, struct Node *head)
     for (int i = 0; i < n; i++)
     {
         remaining_time[i] = processes[i].burstTime;
+        start_time[i] = -1;
     }
 
     while (completed != n)
@@ -99,7 +101,7 @@ void srtfSort(struct Process processes[], int n, struct Node *head)
             continue;
         }
         printf("running process: %d\n current time: %d\n", shortest_process + 1, current_time);
-        if (start_time[shortest_process] == NULL)
+        if (start_time[shortest_process] == -1)
         {
             start_time[shortest_process] = current_time;
         }
