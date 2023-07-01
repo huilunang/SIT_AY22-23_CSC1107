@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #define NUM_PROCESSES 6
 #define TIME_QUANTUM 2
@@ -20,23 +19,17 @@ struct Process
    int end_time;
 };
 
+//edit
 void calculateTimes(struct Process processes[])
 {
-   int currentTime = 0;
-   int i;
-
-   for (i = 0; i < NUM_PROCESSES; i++)
+   // Waiting Time = Turnaround Time - Burst Time
+   // Turnaround Time = Exit Time - Arrival Time 
+   // Response Time = Start Time - Arrival Time
+   for (int i = 0; i < NUM_PROCESSES; i++)
    {
-      if (currentTime < processes[i].arrivalTime)
-      {
-         currentTime = processes[i].arrivalTime;
-      }
-
-      processes[i].waitingTime = currentTime - processes[i].arrivalTime;
-      processes[i].turnaroundTime = processes[i].waitingTime + processes[i].burstTime;
-      processes[i].responseTime = processes[i].waitingTime;
-
-      currentTime += processes[i].burstTime;
+      processes[i].turnaroundTime = processes[i].end_time - processes[i].arrivalTime;
+      processes[i].waitingTime = processes[i].turnaroundTime - processes[i].burstTime;
+      processes[i].responseTime = processes[i].start_time-processes[i].arrivalTime;
    }
 }
 
@@ -52,6 +45,7 @@ void process(struct Process processes[])
    }
 }
 
+//edit
 float avgTurnTime(struct Process processes[])
 {
    float sumTurnaroundTime = 0;
@@ -67,6 +61,7 @@ float avgTurnTime(struct Process processes[])
    return avgTurnaroundTime;
 }
 
+//edit
 float avgWaitTime(struct Process processes[])
 {
    float sumWaitingTime = 0;
@@ -82,6 +77,7 @@ float avgWaitTime(struct Process processes[])
    return avgWaitingTime;
 }
 
+//edit
 float avgResTime(struct Process processes[])
 {
    float sumResponseTime = 0;
@@ -275,7 +271,6 @@ void prioSort(struct Process processes[])
    }
 }
 
-
 void rrSort(struct Process processes[]) {
     int total_time = 0;
     int completed_processes = 0;
@@ -407,6 +402,10 @@ void randomProcess(struct Process processes[])
       processes[i].arrivalTime = rand() % 10;
       processes[i].burstTime = rand() % 10 + 1;
       processes[i].priority = rand() % 5 + 1;
+   
+      processes[i].remaining_time = processes[i].burstTime;  
+      processes[i].start_time = -1;
+      processes[i].end_time = 0;
 
    }
 }
