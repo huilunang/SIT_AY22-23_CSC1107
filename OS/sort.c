@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define NUM_PROCESSES 6
 #define TIME_QUANTUM 2
@@ -176,12 +177,11 @@ void srtfSort(struct Process processes[])
    int completed = 0;
    int shortest_process = 0;
    int remaining_time[n];
-   int start_time[n];
 
    for (int i = 0; i < n; i++)
    {
       remaining_time[i] = processes[i].burstTime;
-      start_time[i] = -1;
+      processes[shortest_process].start_time = -1;
    }
 
    while (completed != n)
@@ -204,9 +204,11 @@ void srtfSort(struct Process processes[])
          current_time++;
          continue;
       }
-      if (start_time[shortest_process] == -1)
-         processes[shortest_process].start_time = current_time;
 
+      if (processes[shortest_process].start_time == -1) {
+         processes[shortest_process].start_time = current_time;
+      }
+         
       // Decrement the remaining time of the shortest process
       remaining_time[shortest_process]--;
 
@@ -215,10 +217,6 @@ void srtfSort(struct Process processes[])
       {
          completed++;
          processes[shortest_process].end_time = current_time + 1;
-         processes[shortest_process].turnaroundTime = processes[shortest_process].end_time - processes[shortest_process].arrivalTime;
-         processes[shortest_process].waitingTime = processes[shortest_process].turnaroundTime - processes[shortest_process].burstTime;
-         processes[shortest_process].responseTime = start_time[shortest_process] - processes[shortest_process].arrivalTime;
-         // printf("Process %d: Completion Time = %d, Turnaround Time = %d, Waiting Time = %d\n",processes[shortest_process].processID, processes[shortest_process].completionTime, processes[shortest_process].turnaroundTime, processes[shortest_process].waitingTime);
       }
       current_time++;
    }
@@ -226,17 +224,16 @@ void srtfSort(struct Process processes[])
 
 void prioSort(struct Process processes[])
 {
-   int n = 6;
+   int n = NUM_PROCESSES;
    int current_time = 0;
    int completed = 0;
    int prioritized_process = 0;
    int remaining_time[n];
-   int start_time[n];
 
    for (int i = 0; i < n; i++)
    {
       remaining_time[i] = processes[i].burstTime;
-      start_time[i] = -1;
+      processes[prioritized_process].start_time = -1;
    }
 
    while (completed != n)
@@ -260,7 +257,7 @@ void prioSort(struct Process processes[])
          continue;
       }
 
-      if (start_time[prioritized_process] == -1)
+      if (processes[prioritized_process].start_time == -1)
          processes[prioritized_process].start_time = current_time;
 
       // Decrement the remaining time of the shortest process
@@ -271,9 +268,6 @@ void prioSort(struct Process processes[])
       {
          completed++;
          processes[prioritized_process].end_time = current_time + 1;
-         processes[prioritized_process].turnaroundTime = processes[prioritized_process].end_time - processes[prioritized_process].arrivalTime;
-         processes[prioritized_process].waitingTime = processes[prioritized_process].turnaroundTime - processes[prioritized_process].burstTime;
-         processes[prioritized_process].responseTime = start_time[prioritized_process] - processes[prioritized_process].arrivalTime;
       }
       current_time++;
    }

@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include "sort.c"
+#include <time.h>
 
 main()
 
@@ -112,7 +113,7 @@ main()
         case 3: // srtf
             randomProcess(processes);
             srtfSort(processes);
-            //calculateTimes(processes);
+            calculateTimes(processes);
             process(processes);
             writeFile(processes, file, "SRTF");
             break;
@@ -128,7 +129,7 @@ main()
             //PS
             randomProcess(processes);
             prioSort(processes);
-            //calculateTimes(processes);
+            calculateTimes(processes);
             process(processes);
             writeFile(processes, file, "PS");
             break;
