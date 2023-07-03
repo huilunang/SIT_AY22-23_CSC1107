@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #define NUM_PROCESSES 6
 #define TIME_QUANTUM 2
@@ -164,12 +163,11 @@ void sjfSort(struct Process processes[], int currentTime, int temp2)
       temp2 = processes[fastestIndex].burstTime;
       processes[fastestIndex].burstTime = processes[i].burstTime;
       processes[i].burstTime = temp2;
-      processes[i].start_time = currentTime - processes[i].burstTime;  // Set start time for the current process
-      processes[i].end_time = processes[i].start_time + processes[i].burstTime; 
+      processes[i].start_time = currentTime - processes[i].burstTime; // Set start time for the current process
+      processes[i].end_time = processes[i].start_time + processes[i].burstTime;
       total_time += processes[i].burstTime;
    }
 }
-
 void srtfSort(struct Process processes[])
 {
    int n = NUM_PROCESSES;
@@ -205,10 +203,11 @@ void srtfSort(struct Process processes[])
          continue;
       }
 
-      if (processes[shortest_process].start_time == -1) {
+      if (processes[shortest_process].start_time == -1)
+      {
          processes[shortest_process].start_time = current_time;
       }
-         
+
       // Decrement the remaining time of the shortest process
       remaining_time[shortest_process]--;
 
@@ -272,7 +271,6 @@ void prioSort(struct Process processes[])
       current_time++;
    }
 }
-
 void rrSort(struct Process processes[])
 {
    int total_time = 0;
@@ -356,58 +354,62 @@ void rrSort(struct Process processes[])
    printf("Total execution time: %d\n", total_time);
 }
 
-float findSmallest(float array[], int size)
+float findFast(float array[], int size)
 {
-   float smallest = array[0]; // Assume the first element is the smallest
+   float fast = array[0]; // Assume the first element is the smallest
 
    for (int i = 1; i < size; i++)
    {
-      if (array[i] < smallest)
+      if (array[i] < fast)
       {
-         smallest = array[i]; // Update the smallest value
+         fast = array[i]; // Update the smallest value
       }
    }
 
-   return smallest;
+   return fast;
 }
 
-void writeFile(struct Process processes[], FILE *file, char name[])
+float writeFileTurn(struct Process processes[], FILE *file, char name[])
 {
 
    float floatTurnTime = avgTurnTime(processes);
-   float floatWaitTime = avgWaitTime(processes);
-   float floatResTime = avgResTime(processes);
-
-   float waitArray[5];
-   float turnArray[5];
-   float resArray[5];
-
-   turnArray[0] = floatTurnTime;
-   waitArray[0] = floatWaitTime;
-   resArray[0] = floatResTime;
-
-   // delete once rest of code is implemented
-   turnArray[2] = 100;
-   waitArray[2] = 100;
-   resArray[2] = 100;
-   turnArray[3] = 100;
-   waitArray[3] = 100;
-   resArray[3] = 100;
-   turnArray[4] = 100;
-   waitArray[4] = 100;
-   resArray[4] = 100;
 
    printf("Shortest Average Turnaround Time(%s): %.2f\n", name, floatTurnTime);
+   // Write output to the file
+   fprintf(file, "Shortest Average Turnaround Time(%s): %.2f", name, floatTurnTime);
+   fprintf(file, "\n");
+
+   // Close the file
+   printf("Output written to the file successfully.\n");
+   return floatTurnTime;
+}
+
+float writeFileWait(struct Process processes[], FILE *file, char name[])
+{
+
+   float floatWaitTime = avgWaitTime(processes);
    printf("Shortest Average Waiting Time(%s): %.2f\n", name, floatWaitTime);
+   // Write output to the file
+   fprintf(file, "Shortest Average Waiting Time(%s): %.2f", name, floatWaitTime);
+   fprintf(file, "\n");
+
+   // Close the file
+   printf("Output written to the file successfully.\n");
+   return floatWaitTime;
+}
+
+float writeFileRes(struct Process processes[], FILE *file, char name[])
+{
+   float floatResTime = avgResTime(processes);
+
    printf("Shortest Average Response Time(%s): %.2f\n", name, floatResTime);
    // Write output to the file
-   fprintf(file, "Shortest Average Turnaround Time(%s): %.2f\n", name, floatTurnTime);
-   fprintf(file, "Shortest Average Waiting Time(%s): %.2f\n", name, floatWaitTime);
    fprintf(file, "Shortest Average Response Time(%s): %.2f\n", name, floatResTime);
    fprintf(file, "\n");
 
    // Close the file
    printf("Output written to the file successfully.\n");
+   return floatResTime;
 }
 
 void randomProcess(struct Process processes[])
