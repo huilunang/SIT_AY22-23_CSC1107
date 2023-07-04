@@ -13,6 +13,8 @@ struct Process
     int turnaroundTime;
     int responseTime;
     int completionTime;
+    int start_time;
+    int end_time;
 };
 struct Node {
     int processID;
@@ -20,6 +22,7 @@ struct Node {
     int burstTime;
     struct Node *next;
 };
+struct Node* head = NULL;
 
 void append(struct Node **head_ref, int processID, int arrivalTime, int burstTime)
 {
@@ -54,30 +57,19 @@ void append(struct Node **head_ref, int processID, int arrivalTime, int burstTim
     last->next = new_node;
     return;
 }
-void printList(struct Node *node)
-{
-    printf("Printing list:");
-    while (node != NULL)
-    {
-        printf(" %d ", node->processID);
-        node = node->next;
-    }
-}
 
-
-void srtfSort(struct Process processes[], struct Node *head)
+void srtfSort(struct Process processes[])
 {
     int n = NUM_PROCESSES;
     int current_time = 0;
     int completed = 0;
     int shortest_process = 0;
     int remaining_time[n];
-    int start_time[n];
 
     for (int i = 0; i < n; i++)
     {
         remaining_time[i] = processes[i].burstTime;
-        start_time[i] = -1;
+        processes[shortest_process].start_time = -1;
     }
 
     while (completed != n)
@@ -94,19 +86,18 @@ void srtfSort(struct Process processes[], struct Node *head)
                 shortest_time = remaining_time[i];
             }
         }
-        
+
         if (shortest_process == -1)
         {
             current_time++;
             continue;
         }
-        printf("running process: %d\n current time: %d\n", shortest_process + 1, current_time);
-        if (start_time[shortest_process] == -1)
-        {
-            start_time[shortest_process] = current_time;
-        }
-        // append(&head, processes[shortest_process].processID, processes[shortest_process].arrivalTime, processes[shortest_process].burstTime);
 
+        if (processes[shortest_process].start_time == -1)
+        {
+            processes[shortest_process].start_time = current_time;
+        }
+        append(&head, processes[shortest_process].processID, processes[shortest_process].arrivalTime, processes[shortest_process].burstTime);
         // Decrement the remaining time of the shortest process
         remaining_time[shortest_process]--;
 
@@ -114,66 +105,119 @@ void srtfSort(struct Process processes[], struct Node *head)
         if (remaining_time[shortest_process] == 0)
         {
             completed++;
-            processes[shortest_process].completionTime = current_time + 1;
-            processes[shortest_process].turnaroundTime = processes[shortest_process].completionTime - processes[shortest_process].arrivalTime;
-            processes[shortest_process].waitingTime = processes[shortest_process].turnaroundTime - processes[shortest_process].burstTime;
-            processes[shortest_process].responseTime = start_time[shortest_process] - processes[shortest_process].arrivalTime;
-            // printf("Process %d: Completion Time = %d, Turnaround Time = %d, Waiting Time = %d\n",processes[shortest_process].processID, processes[shortest_process].completionTime, processes[shortest_process].turnaroundTime, processes[shortest_process].waitingTime);
+            processes[shortest_process].end_time = current_time + 1;
         }
-        
         current_time++;
     }
 }
 
 void calculateTimes(struct Process processes[])
 {
-    int currentTime = 0;
-    int i;
-
-    for (i = 0; i < NUM_PROCESSES; i++)
+   // Waiting Time = Turnaround Time - Burst Time
+   // Turnaround Time = Exit Time - Arrival Time
+   // Response Time = Start Time - Arrival Time
+    for (int i = 0; i < NUM_PROCESSES; i++)
     {
-        if (currentTime < processes[i].arrivalTime)
-        {
-            currentTime = processes[i].arrivalTime;
-        }
-
-        processes[i].waitingTime = currentTime - processes[i].arrivalTime;
-        processes[i].turnaroundTime = processes[i].waitingTime + processes[i].burstTime;
-        processes[i].responseTime = processes[i].waitingTime;
-
-        currentTime += processes[i].burstTime;
+        processes[i].turnaroundTime = processes[i].end_time - processes[i].arrivalTime;
+        processes[i].waitingTime = processes[i].turnaroundTime - processes[i].burstTime;
+        processes[i].responseTime = processes[i].start_time - processes[i].arrivalTime;
     }
 }
 
-void printGanttChart(struct Process processes[], int n)
+
+void printGanttChart(struct Process processes[])
+{
+    printf("\n  ");
+    for (int i = 0; i < NUM_PROCESSES; i++)
+    {
+        for (int j = 0; j < processes[i].burstTime; j++)
+        {
+            if (j == 0)
+            {
+                printf("|");
+            } else {
+                printf(" ");
+            }
+            printf("P%1d", processes[i].processID);
+        }
+    }
+    printf("|\n");
+    int currentTime = 0;
+    for (int i = 0; i < NUM_PROCESSES; i++)
+    {
+        for (int j = 0; j < processes[i].burstTime; j++)
+        {
+            if (j == 0)
+            {
+                printf(" %2d", currentTime);
+            } else {
+                printf("   ");
+            }
+        }
+        currentTime += processes[i].burstTime;
+    }
+    printf(" %2d", currentTime);
+}
+
+void printGanttChartPreemptive(struct Node *node)
+{
+    struct Node *nodeStart = node;
+    printf("\n  |");
+    while (node != NULL)
+    {
+        if (node->next == NULL)
+        {
+            printf("P%1d", node->processID);
+            printf("|");
+        }
+        else
+        {
+            printf("P%1d", node->processID);
+            if (node->processID != node->next->processID)
+            {
+                printf("|");
+            }
+            else
+            {
+                printf(" ");
+            }
+        }
+        node = node->next;
+    }
+    printf("\n");
+    node = nodeStart;
+    int currentTime = 0;
+    printf(" %2d", currentTime++);
+    while (node != NULL)
+    {
+        if (node->next == NULL)
+        {
+            printf(" %2d", currentTime);
+        }
+        else
+        {
+            if (node->processID != node->next->processID)
+            {
+                printf(" %2d", currentTime);
+            }
+            else
+            {
+                printf("   ");
+            }
+        }
+        currentTime++;
+        node = node->next;
+    }
+}
+void printList (struct Node *node)
 {
     printf("\n");
-    for (int i = 0; i < n; i++)
+    while (node != NULL)
     {
-        printf(" |");
-        for (int j = 0; j < processes[i].burstTime; j++)
-        {
-            printf(" P%1d", processes[i].processID);
-        }
+        printf(" %d ", node->processID);
+        node = node->next;
     }
-    printf(" |\n");
-    int currentTime = 0;
-    for (int i = 0; i < n; i++)
-    {
-        printf("%2d", currentTime);
-        for (int j = 0; j < processes[i].burstTime; j++)
-        {
-            printf("   ", processes[i].processID);
-        }
-        currentTime += processes[i].burstTime;
-    }
-    printf("%2d", currentTime);
 }
-void printGanttChartPreemptive(int process, int currentTime, int end)
-{
-
-}
-
 int main()
 {
     // Example processes
@@ -183,18 +227,19 @@ int main()
         {3, 2, 7, 7, 0, 0, 0, 0},
         {4, 1, 3, 3, 0, 0, 0, 0},
     };
-    struct Node* head = NULL;
-    int num_processes = sizeof(processes) / sizeof(processes[0]);
-    srtfSort(processes, num_processes, head);
+    srtfSort(processes);
+    calculateTimes(processes);
     // Show the processes
-    printf("Processes:\n");
+    // printf("Processes:\n");
+    /*
     for (int i = 0; i < num_processes; i++)
     {
         printf("\nProcess %d: Arrival Time = %d, Burst Time = %d, Priority = %d\n", processes[i].processID, processes[i].arrivalTime, processes[i].burstTime, processes[i].priority);
         printf("Process %d: Completion Time = %d, Turnaround Time = %d, Waiting Time = %d\n, Response Time = %d\n", processes[i].processID, processes[i].completionTime, processes[i].turnaroundTime, processes[i].waitingTime, processes[i].responseTime);
-    }
-    printList(head);
-    //printGanttChart(processes, num_processes);
+    }*/
+    printGanttChart(processes);
+    printGanttChartPreemptive(head);
+    //printList(head);
 
     return 0;
 }
