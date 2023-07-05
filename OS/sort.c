@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define NUM_PROCESSES 6
 #define TIME_QUANTUM 2
@@ -18,6 +19,131 @@ struct Process
    int start_time;
    int end_time;
 };
+struct Node
+{
+   int processID;
+   int arrivalTime;
+   int burstTime;
+   struct Node *next;
+};
+struct Node *head = NULL;
+
+void append(struct Node **head_ref, int processID, int arrivalTime, int burstTime)
+{
+   // 1. Allocate node
+   struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
+
+   // Used in step 5
+   struct Node *last = *head_ref;
+
+   // 2. Put in the data
+   new_node->processID = processID;
+   new_node->arrivalTime = arrivalTime;
+   new_node->burstTime = burstTime;
+
+   // 3. This new node is going to be the
+   //    last node, so make next of it as NULL
+   new_node->next = NULL;
+
+   // 4. If the Linked List is empty, then make
+   //    the new node as head
+   if (*head_ref == NULL)
+   {
+      *head_ref = new_node;
+      return;
+   }
+
+   // 5. Else traverse till the last node
+   while (last->next != NULL)
+      last = last->next;
+
+   // 6. Change the next of last node
+   last->next = new_node;
+   return;
+}
+void clearList(struct Node **head)
+{
+   struct Node *current = *head;
+   struct Node *next;
+   while (current != NULL)
+   {
+      next = current->next;
+      free(current);
+      current = next;
+   }
+   *head = NULL;
+}
+void printGanttChart(struct Process processes[])
+{
+   printf("\n  ");
+   for (int i = 0; i < NUM_PROCESSES; i++)
+   {
+      for (int j = 0; j < processes[i].burstTime; j++)
+      {
+         if (j == 0)
+            printf("|");
+         else
+            printf(" ");
+         printf("P%1d", processes[i].processID);
+      }
+   }
+   printf("|\n");
+   int currentTime = 0;
+   for (int i = 0; i < NUM_PROCESSES; i++)
+   {
+      for (int j = 0; j < processes[i].burstTime; j++)
+      {
+         if (j == 0)
+            printf(" %2d", currentTime);
+         else
+            printf("   ");
+      }
+      currentTime += processes[i].burstTime;
+   }
+   printf(" %2d\n", currentTime);
+}
+
+void printGanttChartPreemptive(struct Node *node)
+{
+   struct Node *nodeStart = node;
+   printf("\n  |");
+   while (node != NULL)
+   {
+      if (node->next == NULL)
+      {
+         printf("P%1d", node->processID);
+         printf("|");
+      }
+      else
+      {
+         printf("P%1d", node->processID);
+         if (node->processID != node->next->processID)
+            printf("|");
+         else
+            printf(" ");
+      }
+      node = node->next;
+   }
+   printf("\n");
+   node = nodeStart;
+   int currentTime = 0;
+   printf(" %2d", currentTime++);
+   while (node != NULL)
+   {
+      if (node->next == NULL)
+         printf(" %2d\n", currentTime);
+      else
+      {
+         if (node->processID != node->next->processID)
+            printf(" %2d", currentTime);
+         else
+            printf("   ");
+      }
+      currentTime++;
+      node = node->next;
+   }
+   clearList(&head);
+}
 
 // edit
 void calculateTimes(struct Process processes[])
@@ -116,6 +242,8 @@ void fcfsSort(struct Process processes[])
       currentTime += processes[i].burstTime;
       processes[i].end_time = currentTime;
    }
+   printf("\nFirst Come First Serve Scheduling\n");
+   printGanttChart(processes);
 }
 
 void sjfSort(struct Process processes[], int currentTime, int temp2)
@@ -167,6 +295,8 @@ void sjfSort(struct Process processes[], int currentTime, int temp2)
       processes[i].end_time = processes[i].start_time + processes[i].burstTime;
       total_time += processes[i].burstTime;
    }
+   printf("\nShortest Job First Scheduling\n");
+   printGanttChart(processes);
 }
 void srtfSort(struct Process processes[])
 {
@@ -207,7 +337,7 @@ void srtfSort(struct Process processes[])
       {
          processes[shortest_process].start_time = current_time;
       }
-
+      append(&head, processes[shortest_process].processID, processes[shortest_process].arrivalTime, processes[shortest_process].burstTime);
       // Decrement the remaining time of the shortest process
       remaining_time[shortest_process]--;
 
@@ -219,6 +349,8 @@ void srtfSort(struct Process processes[])
       }
       current_time++;
    }
+   printf("\nShortest Remaining Time First Scheduling\n");
+   printGanttChartPreemptive(head);
 }
 
 void prioSort(struct Process processes[])
@@ -259,6 +391,7 @@ void prioSort(struct Process processes[])
       if (processes[prioritized_process].start_time == -1)
          processes[prioritized_process].start_time = current_time;
 
+      append(&head, processes[prioritized_process].processID, processes[prioritized_process].arrivalTime, processes[prioritized_process].burstTime);
       // Decrement the remaining time of the shortest process
       remaining_time[prioritized_process]--;
 
@@ -270,6 +403,8 @@ void prioSort(struct Process processes[])
       }
       current_time++;
    }
+   printf("\nPriority Scheduling\n");
+   printGanttChartPreemptive(head);
 }
 void rrSort(struct Process processes[])
 {

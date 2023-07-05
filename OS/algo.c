@@ -7,7 +7,9 @@
 
 #include <stdio.h>
 #include "sort.c"
+#include <time.h>
 
+int doAlgo(int choice);
 main()
 
 {
