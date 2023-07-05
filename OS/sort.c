@@ -462,6 +462,8 @@ void rrSort(struct Process processes[])
 
       printf("Process %d executed for %d units of time.\n", processes[selected_process].processID,
              execution_time);
+      for (int i = 0; i < execution_time; i++)
+         append(&head, processes[selected_process].processID, processes[selected_process].arrivalTime, processes[selected_process].burstTime);
 
       if (processes[selected_process].remaining_time == 0)
       {
@@ -487,6 +489,7 @@ void rrSort(struct Process processes[])
    }
 
    printf("Total execution time: %d\n", total_time);
+   printGanttChartPreemptive(head);
 }
 
 float findFast(float array[], int size)
