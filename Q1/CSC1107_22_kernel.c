@@ -28,7 +28,6 @@ static int dev_num;                        // Major number of the character devi
 static struct class *csc1107_class = NULL; // Device driver class pointer
 static struct device *csc1107_dev = NULL;  // Device driver pointer
 static size_t open_count = 0;              // Number of types this device has been opened
-static userspace_t userspace;              // Data from userspace
 static char digest[BUF_SIZE];              // Result of hashing process
 
 // Userspace struct
@@ -36,14 +35,19 @@ typedef enum hash
 {
     MD5 = 0,
     SHA1,
-    SHA256
+    SHA256,
+    SHA512,
+    SHA384
 } hash_t;
 
 typedef struct userspace
 {
     u8 plaintext[BUF_SIZE];
     hash_t algorithm;
+    u8 hashtext[BUF_SIZE];
 } userspace_t;
+
+static userspace_t userspace;              // Data from userspace
 
 // File operation struct
 // Map local functions to default system calls
@@ -91,7 +95,7 @@ static int __init device_init(void)
         return PTR_ERR(csc1107_dev);
     }
 
-    pr_info("%s: device driver successfully created\n", DEV_NAME);
+    pr_info("%s: Device driver successfully created\n", DEV_NAME);
 
     return 0;
 }
@@ -190,13 +194,15 @@ static ssize_t device_write(struct file *filep, const char *buffer, size_t len, 
     struct crypto_shash *algorithm;
     struct shash_desc *desc;
     int err;
+    size_t bytes_to_copy;
+    char* algoStr;
 
     // 'copy_from_user' method returns 0 on success and the number of bytes not copied
     // on error
     bytes_not_copied = copy_from_user(&userspace, buffer, sizeof(userspace_t));
     if (bytes_not_copied)
     { // Check errors
-        pr_warn("%s: error while copying %zu bytes from userspca\n", DEV_NAME, bytes_not_copied);
+        pr_warn("%s: error while copying %zu bytes from userspace\n", DEV_NAME, bytes_not_copied);
         return -EFAULT;
     }
 
@@ -205,13 +211,30 @@ static ssize_t device_write(struct file *filep, const char *buffer, size_t len, 
     {
     case MD5:
         algorithm = crypto_alloc_shash("md5", 0, 0);
+        bytes_to_copy = 16;
+        algoStr = "MD5";
         break;
-    case SHA1:
-        algorithm = crypto_alloc_shash("sha1", 0, 0);
+    case SHA512:
+        algorithm = crypto_alloc_shash("sha512", 0, 0);
+        bytes_to_copy = 64;
+        algoStr = "SHA512";
+        break;
+    case SHA384:
+        algorithm = crypto_alloc_shash("sha384", 0, 0);
+        bytes_to_copy = 48;
+        algoStr = "SHA384";
         break;
     case SHA256:
         algorithm = crypto_alloc_shash("sha256", 0, 0);
+        bytes_to_copy = 32;
+        algoStr = "SHA256";
         break;
+    case SHA1:
+        algorithm = crypto_alloc_shash("sha1", 0, 0);
+        bytes_to_copy = 20;
+        algoStr = "SHA1";
+        break;
+
     default:
         pr_alert("%s: hashing algorithm not recognized\n", DEV_NAME);
         return -EFAULT;
@@ -256,11 +279,22 @@ static ssize_t device_write(struct file *filep, const char *buffer, size_t len, 
         goto out;
     }
 
+    // // received hashed_sentence from kernel
+    // for (size_t i = 0; i < bytes_to_copy; i++)
+    //     snprintf(&digest_hex[2 * i], 3, "%02x", (unsigned char)digest[i]); // convert digest bytes to hexadecimal
+    
     // Finally, clean up resources
     crypto_free_shash(algorithm);
     kfree(desc);
 
     pr_info("%s: String successfully hashed. Read from this device to get the result\n", DEV_NAME);
+    pr_info("Original Sentence: %s", userspace.plaintext);
+    pr_info("Hashed Sentence from user space: %s", userspace.hashtext);
+    pr_info("Hashing Algorithm: %s", algoStr);
+    pr_info("Hashed Sentence from kernel space: ");
+    for (size_t i = 0; i < bytes_to_copy; i++)
+        pr_cont("%02x", digest[i]);
+    pr_cont("\n");
 
     return 0;
 
