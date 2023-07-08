@@ -30,11 +30,6 @@ if [[ $USER_SHELL_PATH != "" && $USER_SHELL != "\bin\bash" ]]
 then
     NEW_USER_SHELL_PATH=$(echo $USER_SHELL_PATH | sed "s:/bin/[A-Za-z]*:/bin/bash:g")
     sudo sed -i "s|$USER_SHELL_PATH|$NEW_USER_SHELL_PATH|" /etc/passwd
-else
-    # terminate and indicate error
-    echo Cannot find user CSC1107_22...
-    echo Terminating...
-    exit 1
 fi
 
 # 5) Use `grep` cmd to get the user in the "/etc/passwd" file, for visual check if default shell has been changed for the user
