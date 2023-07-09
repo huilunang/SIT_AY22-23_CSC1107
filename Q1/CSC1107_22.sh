@@ -1,9 +1,13 @@
 #!/bin/bash
-env_file=./CSC1107_22_env.txt
+ASSIGN_FOLDER_PATH=/home/pi/linux/CSC1107_assignment/
+
+env_file=$ASSIGN_FOLDER_PATH/CSC1107_22_env.txt
 source $env_file
 
 # Check if the script is being disabled
-if [ "$DISABLED" == "FALSE" ]; then
+if [ "$DISABLED" == "TRUE" ]; then
+    echo Script is disabled
+else
     USER_22=CSC1107_22
     KERNEL_22=CSC1107_22_kernel
     DIR_22=/home/pi/Folder_22
@@ -57,7 +61,6 @@ if [ "$DISABLED" == "FALSE" ]; then
     cd $DIR_22
 
     # 8) copy CSC1107_22_user.c, CSC1107_22_kernel.c, Makefile from "/linux/CSC1107_assignment/" folder to the "Folder_22"
-    ASSIGN_FOLDER_PATH=/home/pi/linux/CSC1107_assignment/
     echo -e "Copying contents from \"$ASSIGN_FOLDER_PATH\" to folder \"$DIR_22\"... \n"
     cp -r $ASSIGN_FOLDER_PATH* .
 
@@ -132,6 +135,4 @@ if [ "$DISABLED" == "FALSE" ]; then
 
     # 26) Print a message on screen
     echo -e "The bash shell script of CSC1107_22 has finished all tasks, and stop here. \n"
-else
-    echo Script is disabled
 fi
