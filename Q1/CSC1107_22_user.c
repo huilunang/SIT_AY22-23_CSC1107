@@ -110,24 +110,19 @@ int main(void)
     format_sentence(sentence, dt);
     // convert to bytes and store in us.plaintext for byte-by-byte accessibility
     strncpy((char *)us.plaintext, sentence, BUF_SIZE);
-
-    // get user input for hashing algorithm
-    printf("Select a Hashing Algorithm (1-5) from below: \
+    
+    do {
+        // get user input for hashing algorithm
+        printf("Select a Hashing Algorithm (1-5) from below: \
             \n1. MD5 \
             \n2. SHA-512 \
             \n3. SHA-382 \
             \n4. SHA-256 \
             \n5. SHA-1 \
             \n\nChoice: ",
-           stdout);
-    
-    scanf("%d", &choice);
-
-    if (choice < 0 || choice > 5)
-    {
-        puts("Please select an option from 1 to 5.");
-        return -1;
-    }
+            stdout);
+        scanf("%d", &choice);
+    } while(choice < 0 || choice > 5);
     
     // provide hashing algorithm based on user input
     if (choice == 1)
