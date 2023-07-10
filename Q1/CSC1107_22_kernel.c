@@ -33,7 +33,7 @@ typedef enum hash
     SHA1
 } hash_t;
 
-// userspace struct
+// userspace struct to store data passed from userspace
 typedef struct userspace
 {
     u8 plaintext[BUF_SIZE];
@@ -159,9 +159,9 @@ static ssize_t device_read(struct file *filep, char *buffer, size_t len, loff_t 
  * according to the chosen algorithm using Linux cryptographic APIs */
 static ssize_t device_write(struct file *filep, const char *buffer, size_t len, loff_t *offset)
 {
-    int err;
-    char *algo_str;
-    struct crypto_shash *algorithm;
+    int err;                        // keeping track of error codes
+    char *algo_str;                 // type of hashing algorithm used
+    struct crypto_shash *algorithm; // hashing function
     struct shash_desc *desc;
 
     // 'copy_from_user' gets data from userspace
@@ -207,7 +207,7 @@ static ssize_t device_write(struct file *filep, const char *buffer, size_t len, 
             return -EFAULT;
     }
 
-    // check if selected algorithm is available in the system
+    // check if selected algorithm is available in the system, else handle error
     if (IS_ERR(algorithm))
     {
         pr_alert("%s: Hashing algorithm not supported\n", DEV_NAME);
@@ -227,6 +227,7 @@ static ssize_t device_write(struct file *filep, const char *buffer, size_t len, 
 
     // initialize shash API
     err = crypto_shash_init(desc);
+    // check errors
     if (err)
     {
         pr_err("%s: failed to initialize shash\n", DEV_NAME);
@@ -235,6 +236,7 @@ static ssize_t device_write(struct file *filep, const char *buffer, size_t len, 
 
     // execute hash function
     err = crypto_shash_update(desc, userspace.plaintext, strlen(userspace.plaintext));
+    // check errors
     if (err)
     {
         pr_err("%s: failed to execute hashing function\n", DEV_NAME);
@@ -243,6 +245,7 @@ static ssize_t device_write(struct file *filep, const char *buffer, size_t len, 
 
     // write the result to new char buffer (digest)
     err = crypto_shash_final(desc, digest);
+    // check errors
     if (err)
     {
         pr_err("%s: Failed to complete hashing function\n", DEV_NAME);

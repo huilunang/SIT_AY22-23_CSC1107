@@ -1,16 +1,16 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>      // memory allocation functions
-#include <time.h>        // datetime
-#include <errno.h>       // error handling
-#include <fcntl.h>       // file control
-#include <ctype.h>       // character handling
-#include <unistd.h>      // file descriptor operations
-#include <stdint.h>      // fixed-width integer types
-#include <openssl/evp.h> // hashing function
+#include <stdio.h>                    // input/output operations
+#include <string.h>                   // string manipulation
+#include <stdlib.h>                   // memory allocation functions
+#include <time.h>                     // datetime
+#include <errno.h>                    // error handling
+#include <fcntl.h>                    // file control
+#include <ctype.h>                    // character handling
+#include <unistd.h>                   // file descriptor operations
+#include <stdint.h>                   // fixed-width integer types
+#include <openssl/evp.h>              // hashing function
 
-#define BUF_SIZE 1024    // size of the text buffer
-#define DEVICE_PATH "/dev/CSC1107_22"
+#define BUF_SIZE 1024                 // size of the text buffer
+#define DEVICE_PATH "/dev/CSC1107_22" // path to access character device
 
 // function prototypes
 typedef struct DateTime dt; // give struct alias dt
@@ -178,7 +178,7 @@ int main(void)
 
     // write to device
     ret = write(dev, &us, sizeof(userspace_t));
-    if (ret < 0)
+    if (ret < 0)            // error handling
     {
         perror("Error while sending data to kernel space");
         return errno;
@@ -186,7 +186,7 @@ int main(void)
 
     // read from device
     ret = read(dev, digest, BUF_SIZE);
-    if (ret < 0)
+    if (ret < 0)            // error handling
     {
         perror("Error while reading data to kernel space");
         return errno;
