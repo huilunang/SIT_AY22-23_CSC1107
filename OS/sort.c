@@ -411,7 +411,7 @@ void rrSort(struct Process processes[])
    int total_time = 0;
    int completed_processes = 0;
    int current_time = 0;
-   int next_process_id = 1;
+   int next_process_id = 0;
 
    struct Process temp;
 
@@ -421,25 +421,11 @@ void rrSort(struct Process processes[])
 
       for (int i = 0; i < NUM_PROCESSES; i++)
       {
-         if (processes[i].processID == next_process_id && processes[i].arrivalTime <= current_time && processes[i].remaining_time > 0)
+         int n = (i + next_process_id)%6;
+         if (processes[n].arrivalTime <= current_time && processes[n].remaining_time > 0)
          {
-            selected_process = i;
+            selected_process = n;
             break;
-         }
-      }
-
-      if (selected_process == -1)
-      {
-         for (int i = 0; i < NUM_PROCESSES; i++)
-         {
-            if (processes[i].arrivalTime <= current_time && processes[i].remaining_time > 0)
-            {
-               if (selected_process == -1)
-               {
-                  selected_process = i;
-                  break;
-               }
-            }
          }
       }
 
@@ -470,21 +456,7 @@ void rrSort(struct Process processes[])
          completed_processes++;
       }
 
-      next_process_id = processes[selected_process].processID + 1;
-      if (next_process_id == 7)
-         next_process_id = 1;
-
-      // Perform Round Robin
-      if (processes[selected_process].remaining_time > 0)
-      {
-         // Move the process to the end of the queue
-         temp = processes[selected_process];
-         for (int i = selected_process; i < NUM_PROCESSES - 1; i++)
-         {
-            processes[i] = processes[i + 1];
-         }
-         processes[NUM_PROCESSES - 1] = temp;
-      }
+      next_process_id = (selected_process + 1)%6;
    }
 
    // printf("Total execution time: %d\n", total_time);
