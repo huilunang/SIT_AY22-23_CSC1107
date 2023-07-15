@@ -73,8 +73,9 @@ void clearList(struct Node **head)
    }
    *head = NULL;
 }
-void printGanttChart(struct Process processes[])
+void printGanttChart2(struct Process processes[])
 {
+   int currentTime = 0;
    printf("\n  ");
    for (int i = 0; i < NUM_PROCESSES; i++)
    {
@@ -88,7 +89,7 @@ void printGanttChart(struct Process processes[])
       }
    }
    printf("|\n");
-   int currentTime = 0;
+   currentTime = 0;
    for (int i = 0; i < NUM_PROCESSES; i++)
    {
       for (int j = 0; j < processes[i].burstTime; j++)
@@ -102,6 +103,57 @@ void printGanttChart(struct Process processes[])
    }
    printf(" %2d\n", currentTime);
 }
+
+void printGanttChart(struct Process processes[])
+{
+   int currentTime = 0;
+   printf("\n  ");
+   for (int i = 0; i < NUM_PROCESSES; i++)
+   {
+      for (int j = currentTime; processes[i].arrivalTime > j; j++)
+      {
+         if (j == currentTime)
+            printf("|");
+         else
+            printf(" ");
+         printf("P0");
+      }
+      currentTime += processes[i].arrivalTime;
+      for (int j = 0; j < processes[i].burstTime; j++)
+      {
+         if (j == 0)
+            printf("|");
+         else
+            printf(" ");
+         printf("P%1d", processes[i].processID);
+      }
+      currentTime += processes[i].burstTime;
+   }
+   printf("|\n");
+   currentTime = 0;
+   for (int i = 0; i < NUM_PROCESSES; i++)
+   {
+      int start = currentTime;
+      for (int j = currentTime; processes[i].arrivalTime > j; j++)
+      {
+         if (j == start)
+            printf(" %2d", j);
+         else
+            printf("   ");
+         currentTime++;
+      }
+      for (int j = 0; j < processes[i].burstTime; j++)
+      {
+         if (j == 0)
+            printf(" %2d", currentTime);
+         else
+            printf("   ");
+      }
+      currentTime += processes[i].burstTime;
+   }
+   printf(" %2d\n", currentTime);
+}
+
 
 void printGanttChartPreemptive(struct Node *node)
 {
@@ -329,6 +381,7 @@ void srtfSort(struct Process processes[])
 
       if (shortest_process == -1)
       {
+         append(&head, 0, 0, 0);
          current_time++;
          continue;
       }
@@ -384,6 +437,7 @@ void prioSort(struct Process processes[])
 
       if (prioritized_process == -1)
       {
+         append(&head, 0, 0, 0);
          current_time++;
          continue;
       }
@@ -445,6 +499,7 @@ void rrSort(struct Process processes[])
 
       if (selected_process == -1)
       {
+         append(&head, 0, 0, 0);
          current_time++;
          continue;
       }
