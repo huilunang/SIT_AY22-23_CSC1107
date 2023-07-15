@@ -106,7 +106,6 @@ int doAlgo(int choice)
     reset(processes, processes2);
 
     // RR start here
-    randomProcess(processes);
     rrSort(processes);
     calculateTimes(processes);
     turnArray[3] = writeFileTurn(processes, file, "RR");
