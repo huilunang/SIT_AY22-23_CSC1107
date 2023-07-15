@@ -130,6 +130,7 @@ int doAlgo(int choice)
     fclose(file);
     if (fastestTurn == turnArray[choice - 1] || fastestWait == waitArray[choice - 1] || fastestRes == resArray[choice - 1])
     {
+        printf("\nOutput written to the file successfully.\n");
         return 1;
     }
 }

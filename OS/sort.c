@@ -545,7 +545,7 @@ float writeFileTurn(struct Process processes[], FILE *file, char name[])
    fprintf(file, "\n");
 
    // Close the file
-   printf("Output written to the file successfully.\n");
+   //printf("Output written to the file successfully.\n");
    return floatTurnTime;
 }
 
@@ -559,7 +559,7 @@ float writeFileWait(struct Process processes[], FILE *file, char name[])
    fprintf(file, "\n");
 
    // Close the file
-   printf("Output written to the file successfully.\n");
+   //printf("Output written to the file successfully.\n");
    return floatWaitTime;
 }
 
@@ -573,7 +573,7 @@ float writeFileRes(struct Process processes[], FILE *file, char name[])
    fprintf(file, "\n");
 
    // Close the file
-   printf("Output written to the file successfully.\n");
+   // printf("Output written to the file successfully.\n");
    return floatResTime;
 }
 
