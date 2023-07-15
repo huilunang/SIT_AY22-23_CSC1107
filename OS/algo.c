@@ -54,7 +54,7 @@ int doAlgo(int choice)
     float waitArray[5];
     float turnArray[5];
     float resArray[5];
-    FILE *file = fopen("C:\\Users\\Keag\\Desktop\\SITstoofs\\Y1S3\\OS\\Q2_Group_Number.txt", "w");
+    FILE *file = fopen("Q2_Group22.txt", "w");
 
     if (file == NULL)
     {
@@ -62,15 +62,20 @@ int doAlgo(int choice)
         return 1;
     }
     randomProcess(processes);
+   fprintf(file,"Process\tArrival Time\tBurst Time\tPriority\n");
 
     for (int i = 0; i < NUM_PROCESSES; i++)
-
     {
         processes2[i] = processes[i];
+         fprintf(file, "P%d\t    %d\t           \t%d\t    \t%d\n", processes[i].processID,
+             processes[i].arrivalTime, processes[i].burstTime, processes[i].priority);
     }
+    fprintf(file,"\n");
+
+
     fcfsSort(processes);
     calculateTimes(processes);
-    process(processes);
+    process(processes,file);
     turnArray[0] = writeFileTurn(processes, file, "FCFS");
     waitArray[0] = writeFileWait(processes, file, "FCFS");
     resArray[0] = writeFileRes(processes, file, "FCFS");
@@ -83,7 +88,6 @@ int doAlgo(int choice)
     burstTimeSort(processes, smallTime, temp2);
     sjfSort(processes, currentTime, temp2);
     calculateTimes(processes);
-    process(processes);
     turnArray[1] = writeFileTurn(processes, file, "SJF");
     waitArray[1] = writeFileWait(processes, file, "SJF");
     resArray[1] = writeFileRes(processes, file, "SJF");
@@ -94,7 +98,6 @@ int doAlgo(int choice)
     // SRTF start here
     srtfSort(processes);
     calculateTimes(processes);
-    process(processes);
     turnArray[2] = writeFileTurn(processes, file, "SRTF");
     waitArray[2] = writeFileWait(processes, file, "SRTF");
     resArray[2] = writeFileRes(processes, file, "SRTF");
@@ -106,7 +109,6 @@ int doAlgo(int choice)
     randomProcess(processes);
     rrSort(processes);
     calculateTimes(processes);
-    process(processes);
     turnArray[3] = writeFileTurn(processes, file, "RR");
     waitArray[3] = writeFileWait(processes, file, "RR");
     resArray[3] = writeFileRes(processes, file, "RR");
@@ -117,7 +119,6 @@ int doAlgo(int choice)
     // PS start here
     prioSort(processes);
     calculateTimes(processes);
-    process(processes);
     turnArray[4] = writeFileTurn(processes, file, "PS");
     waitArray[4] = writeFileWait(processes, file, "PS");
     resArray[4] = writeFileRes(processes, file, "PS");
@@ -127,12 +128,6 @@ int doAlgo(int choice)
     float fastestWait = findFast(waitArray, 5);
     float fastestRes = findFast(resArray, 5);
 
-    //printf("%f\n", fastestTurn);
-    //printf("%f\n", fastestWait);
-    //printf("%f\n", fastestRes);
-    //printf("%f\n", turnArray[choice - 1]);
-    //printf("%f\n", waitArray[choice - 1]);
-    //printf("%f\n", resArray[choice - 1]);
     fclose(file);
     if (fastestTurn == turnArray[choice - 1] || fastestWait == waitArray[choice - 1] || fastestRes == resArray[choice - 1])
     {

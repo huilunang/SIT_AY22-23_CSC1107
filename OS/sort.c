@@ -159,7 +159,7 @@ void calculateTimes(struct Process processes[])
    }
 }
 
-void process(struct Process processes[])
+void process(struct Process processes[], FILE *file)
 {
    int i;
 
