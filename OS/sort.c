@@ -460,8 +460,7 @@ void rrSort(struct Process processes[])
       processes[selected_process].remaining_time -= execution_time;
       current_time += execution_time;
 
-      printf("Process %d executed for %d units of time.\n", processes[selected_process].processID,
-             execution_time);
+      // printf("Process %d executed for %d units of time.\n", processes[selected_process].processID, execution_time);
       for (int i = 0; i < execution_time; i++)
          append(&head, processes[selected_process].processID, processes[selected_process].arrivalTime, processes[selected_process].burstTime);
 
@@ -488,7 +487,8 @@ void rrSort(struct Process processes[])
       }
    }
 
-   printf("Total execution time: %d\n", total_time);
+   // printf("Total execution time: %d\n", total_time);
+   printf("\nRound Robin Scheduling\n");
    printGanttChartPreemptive(head);
 }
 
