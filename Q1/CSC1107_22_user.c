@@ -116,7 +116,7 @@ int main(void)
         printf("Select a Hashing Algorithm (1-5) from below: \
             \n1. MD5 \
             \n2. SHA-512 \
-            \n3. SHA-382 \
+            \n3. SHA-384 \
             \n4. SHA-256 \
             \n5. SHA-1 \
             \n\nChoice: ",
