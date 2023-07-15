@@ -1,28 +1,22 @@
-// FCFS
-// SJF
-// SRTF
-// RR
-// Priority Scheduling
-// ctrl a+k+f
-
 #include <stdio.h>
-#include "sort.c"
 #include <time.h>
+#include "sort.c"
+
+#define NUM_PROCESSES 6 //total number of processes
+#define TIME_QUANTUM 2 //round robin timing
+
+
 
 int doAlgo(int choice);
 main()
 
 {
-    int option = 0;
-    int choice;
-    int loop = 0;
-    int x = 0;
 
-    char name[5];
+    int option = 0; //main loop to allow the program to continue running
+    int choice; //user input choice
+    int loop = 0; //loop to do the algo 
 
-    int i, j;
-
-    srand(time(NULL));
+    srand(time(NULL)); //randomly generate number
 
     struct Process temp;
 
@@ -46,14 +40,14 @@ main()
 
 int doAlgo(int choice)
 {
-    int currentTime = 0;
+    int currentTime = 0; //set the current time to 0 
     int smallTime[NUM_PROCESSES];
     struct Process processes[NUM_PROCESSES];
     struct Process processes2[NUM_PROCESSES];
     int temp2;
-    float waitArray[5];
-    float turnArray[5];
-    float resArray[5];
+    float waitArray[5]; //array to store waiting times
+    float turnArray[5]; //array to store turnaround times
+    float resArray[5]; //array to store response times
     FILE *file = fopen("C:\\Users\\Keag\\Desktop\\SITstoofs\\Y1S3\\OS\\Q2_Group_Number.txt", "w");
 
     if (file == NULL)
@@ -61,16 +55,19 @@ int doAlgo(int choice)
         printf("Failed to open the file.\n");
         return 1;
     }
-    randomProcess(processes);
+    randomProcess(processes); //randomise the processes
 
-    for (int i = 0; i < NUM_PROCESSES; i++)
+    for (int i = 0; i < NUM_PROCESSES; i++) //store the original values to allow for other sorts to use the same values
 
     {
-        processes2[i] = processes[i];
+      processes2[i] = processes[i];
+      fprintf(file, "Process (%s): %.2f", i, processes[i]);
     }
+
+    // FCFS start here
     fcfsSort(processes);
     calculateTimes(processes);
-    process(processes);
+    process(processes); //print out the processes
     turnArray[0] = writeFileTurn(processes, file, "FCFS");
     waitArray[0] = writeFileWait(processes, file, "FCFS");
     resArray[0] = writeFileRes(processes, file, "FCFS");
@@ -83,7 +80,6 @@ int doAlgo(int choice)
     burstTimeSort(processes, smallTime, temp2);
     sjfSort(processes, currentTime, temp2);
     calculateTimes(processes);
-    process(processes);
     turnArray[1] = writeFileTurn(processes, file, "SJF");
     waitArray[1] = writeFileWait(processes, file, "SJF");
     resArray[1] = writeFileRes(processes, file, "SJF");
@@ -94,7 +90,6 @@ int doAlgo(int choice)
     // SRTF start here
     srtfSort(processes);
     calculateTimes(processes);
-    process(processes);
     turnArray[2] = writeFileTurn(processes, file, "SRTF");
     waitArray[2] = writeFileWait(processes, file, "SRTF");
     resArray[2] = writeFileRes(processes, file, "SRTF");
@@ -106,7 +101,6 @@ int doAlgo(int choice)
     randomProcess(processes);
     rrSort(processes);
     calculateTimes(processes);
-    process(processes);
     turnArray[3] = writeFileTurn(processes, file, "RR");
     waitArray[3] = writeFileWait(processes, file, "RR");
     resArray[3] = writeFileRes(processes, file, "RR");
@@ -117,22 +111,15 @@ int doAlgo(int choice)
     // PS start here
     prioSort(processes);
     calculateTimes(processes);
-    process(processes);
     turnArray[4] = writeFileTurn(processes, file, "PS");
     waitArray[4] = writeFileWait(processes, file, "PS");
     resArray[4] = writeFileRes(processes, file, "PS");
 
-    //find the fastest turnaround time OR waiting time OR response time out for the given choice
+    // find the fastest turnaround time OR waiting time OR response time out for the given choice
     float fastestTurn = findFast(turnArray, 5);
     float fastestWait = findFast(waitArray, 5);
     float fastestRes = findFast(resArray, 5);
 
-    //printf("%f\n", fastestTurn);
-    //printf("%f\n", fastestWait);
-    //printf("%f\n", fastestRes);
-    //printf("%f\n", turnArray[choice - 1]);
-    //printf("%f\n", waitArray[choice - 1]);
-    //printf("%f\n", resArray[choice - 1]);
     fclose(file);
     if (fastestTurn == turnArray[choice - 1] || fastestWait == waitArray[choice - 1] || fastestRes == resArray[choice - 1])
     {
