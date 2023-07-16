@@ -1,0 +1,28 @@
+Process	Arrival Time	Burst Time	Priority
+P1	    7	           	4	    	1
+P2	    1	           	7	    	4
+P3	    6	           	2	    	5
+P4	    5	           	8	    	2
+P5	    2	           	6	    	3
+P6	    5	           	10	    	5
+
+Shortest Average Turnaround Time(FCFS): 19.33
+Shortest Average Waiting Time(FCFS): 13.17
+Shortest Average Response Time(FCFS): 13.17
+
+Shortest Average Turnaround Time(SJF): 15.17
+Shortest Average Waiting Time(SJF): 9.00
+Shortest Average Response Time(SJF): 9.00
+
+Shortest Average Turnaround Time(SRTF): 15.33
+Shortest Average Waiting Time(SRTF): 9.17
+Shortest Average Response Time(SRTF): 9.17
+
+Shortest Average Turnaround Time(RR): 23.17
+Shortest Average Waiting Time(RR): 17.00
+Shortest Average Response Time(RR): 2.33
+
+Shortest Average Turnaround Time(PS): 19.00
+Shortest Average Waiting Time(PS): 12.83
+Shortest Average Response Time(PS): 7.17
+
