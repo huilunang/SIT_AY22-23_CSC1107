@@ -135,4 +135,6 @@ else
 
     # 26) Print a message on screen
     echo -e "The bash shell script of CSC1107_22 has finished all tasks, and stop here. \n"
+
+    read -n 1 -s -r -p  "Press any key to exit.."
 fi
