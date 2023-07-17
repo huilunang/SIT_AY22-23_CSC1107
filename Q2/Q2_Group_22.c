@@ -20,6 +20,7 @@ struct Process
    int start_time;
    int end_time;
 };
+// Node for linkedlist used in displaying gantt chart
 struct Node
 {
    int processID;
@@ -27,8 +28,10 @@ struct Node
    int burstTime;
    struct Node *next;
 };
+// head of linkedlist
 struct Node *head = NULL;
 
+// Function to create newNode or add node in a linkedlist
 void append(struct Node **head_ref, int processID, int arrivalTime, int burstTime)
 {
    // 1. Allocate node
@@ -62,6 +65,7 @@ void append(struct Node **head_ref, int processID, int arrivalTime, int burstTim
    last->next = new_node;
    return;
 }
+// Function to clear linkedlist
 void clearList(struct Node **head)
 {
    struct Node *current = *head;
@@ -74,43 +78,16 @@ void clearList(struct Node **head)
    }
    *head = NULL;
 }
-void printGanttChart2(struct Process processes[])
-{
-   int currentTime = 0;
-   printf("\n  ");
-   for (int i = 0; i < NUM_PROCESSES; i++)
-   {
-      for (int j = 0; j < processes[i].burstTime; j++)
-      {
-         if (j == 0)
-            printf("|");
-         else
-            printf(" ");
-         printf("P%1d", processes[i].processID);
-      }
-   }
-   printf("|\n");
-   currentTime = 0;
-   for (int i = 0; i < NUM_PROCESSES; i++)
-   {
-      for (int j = 0; j < processes[i].burstTime; j++)
-      {
-         if (j == 0)
-            printf(" %2d", currentTime);
-         else
-            printf("   ");
-      }
-      currentTime += processes[i].burstTime;
-   }
-   printf(" %2d\n", currentTime);
-}
-
+// Function to print linkedlist for FCFS and SJF
 void printGanttChart(struct Process processes[])
 {
+   // Printing the first row, processID
    int currentTime = 0;
    printf("\n  ");
    for (int i = 0; i < NUM_PROCESSES; i++)
    {
+      // If the current time is less than the arrival time of the current process
+      // This means that there is no process that has arrived and is waiting to be processed
       for (int j = currentTime; processes[i].arrivalTime > j; j++)
       {
          if (j == currentTime)
@@ -120,6 +97,7 @@ void printGanttChart(struct Process processes[])
          printf("P0");
       }
       currentTime += processes[i].arrivalTime;
+      // Print the current process ID
       for (int j = 0; j < processes[i].burstTime; j++)
       {
          if (j == 0)
@@ -130,11 +108,15 @@ void printGanttChart(struct Process processes[])
       }
       currentTime += processes[i].burstTime;
    }
+
+   // Printing the second row, time
    printf("|\n");
    currentTime = 0;
    for (int i = 0; i < NUM_PROCESSES; i++)
    {
       int start = currentTime;
+      // If the current time is less than the arrival time of the current process
+      // This means that there is no process that has arrived and is waiting to be processed
       for (int j = currentTime; processes[i].arrivalTime > j; j++)
       {
          if (j == start)
@@ -143,6 +125,7 @@ void printGanttChart(struct Process processes[])
             printf("   ");
          currentTime++;
       }
+      // Print the current time
       for (int j = 0; j < processes[i].burstTime; j++)
       {
          if (j == 0)
@@ -154,14 +137,15 @@ void printGanttChart(struct Process processes[])
    }
    printf(" %2d\n", currentTime);
 }
-
-
+// Function to print linkedlist for SRTF, RR and PS
 void printGanttChartPreemptive(struct Node *node)
 {
+   // Printing the first row, processID
    struct Node *nodeStart = node;
    printf("\n  |");
    while (node != NULL)
    {
+      // If the next node is NULL, then we are at the last node
       if (node->next == NULL)
       {
          printf("P%1d", node->processID);
@@ -169,7 +153,10 @@ void printGanttChartPreemptive(struct Node *node)
       }
       else
       {
+         // Print the current process ID
          printf("P%1d", node->processID);
+         // If the current process is not the same as the next process
+         // Then we print a "|" to separate the processes
          if (node->processID != node->next->processID)
             printf("|");
          else
@@ -177,16 +164,21 @@ void printGanttChartPreemptive(struct Node *node)
       }
       node = node->next;
    }
+   // Printing the second row, time
    printf("\n");
    node = nodeStart;
    int currentTime = 0;
+   // Print the arrival time of the first process
    printf(" %2d", currentTime++);
    while (node != NULL)
    {
+      // If the next node is NULL, then we are at the last node
       if (node->next == NULL)
          printf(" %2d\n", currentTime);
       else
       {
+         // If the current process is not the same as the next process
+         // Then we print the current time
          if (node->processID != node->next->processID)
             printf(" %2d", currentTime);
          else
@@ -195,6 +187,7 @@ void printGanttChartPreemptive(struct Node *node)
       currentTime++;
       node = node->next;
    }
+   // Clear the linkedlist for the next sorting algorithm
    clearList(&head);
 }
 
@@ -355,16 +348,19 @@ void srtfSort(struct Process processes[])
    int shortest_process = 0;
    int remaining_time[n];
 
+   // Initialize remaining time to burst time and start time to -1
+   // -1 indicates that the process has not started
    for (int i = 0; i < n; i++)
    {
       remaining_time[i] = processes[i].burstTime;
       processes[shortest_process].start_time = -1;
    }
 
+   // Loop until all processes are completed
    while (completed != n)
    {
-      shortest_process = -1;
-      int shortest_time = INT_MAX;
+      shortest_process = -1; // Index of the process with the shortest remaining time
+      int shortest_time = INT_MAX; // Initialize shortest time to the largest possible integer
 
       // Find the process with the shortest remaining time
       for (int i = 0; i < n; i++)
@@ -376,6 +372,8 @@ void srtfSort(struct Process processes[])
          }
       }
 
+      // If no process is prioritized, then there are no processes that have arrived
+      // Therefore, we increment the current time and continue
       if (shortest_process == -1)
       {
          append(&head, 0, 0, 0);
@@ -383,10 +381,12 @@ void srtfSort(struct Process processes[])
          continue;
       }
 
+      // If the process has not started, then we set the start time to the current time
       if (processes[shortest_process].start_time == -1)
       {
          processes[shortest_process].start_time = current_time;
       }
+      // Add the process to the Gantt Chart
       append(&head, processes[shortest_process].processID, processes[shortest_process].arrivalTime, processes[shortest_process].burstTime);
       // Decrement the remaining time of the shortest process
       remaining_time[shortest_process]--;
@@ -399,6 +399,7 @@ void srtfSort(struct Process processes[])
       }
       current_time++;
    }
+   // Print the Gantt Chart after all processes have been completed
    printf("\nShortest Remaining Time First Scheduling\n");
    printGanttChartPreemptive(head);
 }
@@ -411,18 +412,21 @@ void prioSort(struct Process processes[])
    int prioritized_process = 0;
    int remaining_time[n];
 
+   // Initialize remaining time to burst time and start time to -1
+   // -1 indicates that the process has not started
    for (int i = 0; i < n; i++)
    {
       remaining_time[i] = processes[i].burstTime;
       processes[prioritized_process].start_time = -1;
    }
 
+   // Loop until all processes are completed
    while (completed != n)
    {
-      prioritized_process = -1;
-      int priority = INT_MAX;
+      prioritized_process = -1; // Index of the process with the shortest remaining time
+      int priority = INT_MAX; // Lower number indicates higher priority
 
-      // Find the process with the shortest remaining time
+      // Find the process with the lowest priotity integer
       for (int i = 0; i < n; i++)
       {
          if (processes[i].arrivalTime <= current_time && processes[i].priority < priority && remaining_time[i] > 0)
@@ -432,6 +436,8 @@ void prioSort(struct Process processes[])
          }
       }
 
+      // If no process is prioritized, then there are no processes that have arrived
+      // Therefore, we increment the current time and continue
       if (prioritized_process == -1)
       {
          append(&head, 0, 0, 0);
@@ -439,10 +445,13 @@ void prioSort(struct Process processes[])
          continue;
       }
 
+      // If the process has not started, then we set the start time to the current time
       if (processes[prioritized_process].start_time == -1)
          processes[prioritized_process].start_time = current_time;
 
+      // Add the process to the Gantt Chart
       append(&head, processes[prioritized_process].processID, processes[prioritized_process].arrivalTime, processes[prioritized_process].burstTime);
+      
       // Decrement the remaining time of the shortest process
       remaining_time[prioritized_process]--;
 
@@ -454,6 +463,7 @@ void prioSort(struct Process processes[])
       }
       current_time++;
    }
+   // Print the Gantt Chart after all processes have been completed
    printf("\nPriority Scheduling\n");
    printGanttChartPreemptive(head);
 }
@@ -659,7 +669,7 @@ int doAlgo(int choice)
     float waitArray[5];
     float turnArray[5];
     float resArray[5];
-    FILE *file = fopen("Q2_Group22.txt", "w");
+    FILE *file = fopen("Q2_Group_22.txt", "w");
 
     if (file == NULL)
     {
