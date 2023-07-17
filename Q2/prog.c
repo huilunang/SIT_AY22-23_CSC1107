@@ -198,7 +198,6 @@ void printGanttChartPreemptive(struct Node *node)
    clearList(&head);
 }
 
-// edit
 void calculateTimes(struct Process processes[])
 {
    // Waiting Time = Turnaround Time - Burst Time
@@ -206,13 +205,13 @@ void calculateTimes(struct Process processes[])
    // Response Time = Start Time - Arrival Time
    for (int i = 0; i < NUM_PROCESSES; i++)
    {
-      processes[i].turnaroundTime = processes[i].end_time - processes[i].arrivalTime;
-      processes[i].waitingTime = processes[i].turnaroundTime - processes[i].burstTime;
-      processes[i].responseTime = processes[i].start_time - processes[i].arrivalTime;
+      processes[i].turnaroundTime = processes[i].end_time - processes[i].arrivalTime; //calculate turnaround time
+      processes[i].waitingTime = processes[i].turnaroundTime - processes[i].burstTime; //calculate waiting time
+      processes[i].responseTime = processes[i].start_time - processes[i].arrivalTime; //calculate response time
    }
 }
 
-void process(struct Process processes[], FILE *file)
+void process(struct Process processes[], FILE *file) //print out processes neatly with heading
 {
    int i;
 
@@ -224,8 +223,7 @@ void process(struct Process processes[], FILE *file)
    }
 }
 
-// edit
-float avgTurnTime(struct Process processes[])
+float avgTurnTime(struct Process processes[]) //calculate avg turnaround time
 {
    float sumTurnaroundTime = 0;
    int i;
@@ -240,8 +238,7 @@ float avgTurnTime(struct Process processes[])
    return avgTurnaroundTime;
 }
 
-// edit
-float avgWaitTime(struct Process processes[])
+float avgWaitTime(struct Process processes[]) //calculate avg waiting time
 {
    float sumWaitingTime = 0;
    int i;
@@ -256,8 +253,7 @@ float avgWaitTime(struct Process processes[])
    return avgWaitingTime;
 }
 
-// edit
-float avgResTime(struct Process processes[])
+float avgResTime(struct Process processes[]) //calculate avg response time
 {
    float sumResponseTime = 0;
    int i;
@@ -280,7 +276,7 @@ void fcfsSort(struct Process processes[])
    {
       for (int j = i + 1; j < NUM_PROCESSES; j++)
       {
-         if (processes[i].arrivalTime > processes[j].arrivalTime)
+         if (processes[i].arrivalTime > processes[j].arrivalTime) //sort by first arrival time
          {
             temp = processes[i];
             processes[i] = processes[j];
@@ -289,7 +285,7 @@ void fcfsSort(struct Process processes[])
       }
    }
    int currentTime = 0;
-   for (int i = 0; i < NUM_PROCESSES; i++)
+   for (int i = 0; i < NUM_PROCESSES; i++) //calculate endtime of processes
    {
       processes[i].start_time = currentTime;
       currentTime += processes[i].burstTime;
@@ -520,7 +516,7 @@ void rrSort(struct Process processes[])
    printGanttChartPreemptive(head);
 }
 
-float findFast(float array[], int size)
+float findFast(float array[], int size) // Find the fastest time in the array
 {
    float fast = array[0]; // Assume the first element is the smallest
 
@@ -535,7 +531,7 @@ float findFast(float array[], int size)
    return fast;
 }
 
-float writeFileTurn(struct Process processes[], FILE *file, char name[])
+float writeFileTurn(struct Process processes[], FILE *file, char name[]) //print turnaround time in .txt file
 {
 
    float floatTurnTime = avgTurnTime(processes);
@@ -544,13 +540,10 @@ float writeFileTurn(struct Process processes[], FILE *file, char name[])
    // Write output to the file
    fprintf(file, "Shortest Average Turnaround Time(%s): %.2f", name, floatTurnTime);
    fprintf(file, "\n");
-
-   // Close the file
-   //printf("Output written to the file successfully.\n");
    return floatTurnTime;
 }
 
-float writeFileWait(struct Process processes[], FILE *file, char name[])
+float writeFileWait(struct Process processes[], FILE *file, char name[]) //print waiting time in .txt file
 {
 
    float floatWaitTime = avgWaitTime(processes);
@@ -558,13 +551,10 @@ float writeFileWait(struct Process processes[], FILE *file, char name[])
    // Write output to the file
    fprintf(file, "Shortest Average Waiting Time(%s): %.2f", name, floatWaitTime);
    fprintf(file, "\n");
-
-   // Close the file
-   //printf("Output written to the file successfully.\n");
    return floatWaitTime;
 }
 
-float writeFileRes(struct Process processes[], FILE *file, char name[])
+float writeFileRes(struct Process processes[], FILE *file, char name[]) //print response time in .txt file
 {
    float floatResTime = avgResTime(processes);
 
@@ -572,13 +562,10 @@ float writeFileRes(struct Process processes[], FILE *file, char name[])
    // Write output to the file
    fprintf(file, "Shortest Average Response Time(%s): %.2f\n", name, floatResTime);
    fprintf(file, "\n");
-
-   // Close the file
-   // printf("Output written to the file successfully.\n");
    return floatResTime;
 }
 
-void randomProcess(struct Process processes[])
+void randomProcess(struct Process processes[]) //randomly generate processes with random arrivaltime, bursttime and priority
 {
    for (int i = 0; i < NUM_PROCESSES; i++)
    {
@@ -593,7 +580,7 @@ void randomProcess(struct Process processes[])
    }
 }
 
-void burstTimeSort(struct Process processes[], int smallTime[NUM_PROCESSES], int temp2)
+void burstTimeSort(struct Process processes[], int smallTime[NUM_PROCESSES], int temp2) //sort processes by burst time
 {
    // Copy the BT
    for (int i = 0; i < NUM_PROCESSES; i++)
@@ -617,7 +604,7 @@ void burstTimeSort(struct Process processes[], int smallTime[NUM_PROCESSES], int
    }
 }
 
-void reset(struct Process processes[], struct Process processes2[])
+void reset(struct Process processes[], struct Process processes2[]) //ensures that each algo uses the original processes generated
 {
    // reset back to original
    for (int i = 0; i < 6; i++)
