@@ -469,27 +469,30 @@ void prioSort(struct Process processes[])
 }
 void rrSort(struct Process processes[])
 {
-   int total_time = 0;
+   // Initialize variables for sorting
    int completed_processes = 0;
    int current_time = 0;
    int next_process_id = 0;
 
    struct Process temp;
 
+   // Will loop until all processes have completed
    while (completed_processes < NUM_PROCESSES)
    {
       int selected_process = -1;
 
+      // Rotate through processes with an offset based on previous process
       for (int i = 0; i < NUM_PROCESSES; i++)
       {
-         int n = (i + next_process_id)%6;
-         if (processes[n].arrivalTime <= current_time && processes[n].remaining_time > 0)
+         int next = (i + next_process_id)%6;
+         if (processes[next].arrivalTime <= current_time && processes[next].remaining_time > 0)
          {
-            selected_process = n;
+            selected_process = next;
             break;
          }
       }
 
+      // If there is no selected process then increment the time and return to the start
       if (selected_process == -1)
       {
          append(&head, 0, 0, 0);
@@ -497,31 +500,35 @@ void rrSort(struct Process processes[])
          continue;
       }
 
+      // If the selected process just started, set the starting time to the current time
       if (processes[selected_process].start_time == -1)
          processes[selected_process].start_time = current_time;
 
+      // Sets the execution time to be 2 or 1 depending on the remaining time
       int execution_time = (processes[selected_process].remaining_time <= TIME_QUANTUM)
                                ? processes[selected_process].remaining_time
                                : TIME_QUANTUM;
 
-      total_time += execution_time;
+      // Update remaining time and current time depending on execution time
       processes[selected_process].remaining_time -= execution_time;
       current_time += execution_time;
 
-      // printf("Process %d executed for %d units of time.\n", processes[selected_process].processID, execution_time);
+      // Append information for the Gantt Chart to keep track of
       for (int i = 0; i < execution_time; i++)
          append(&head, processes[selected_process].processID, processes[selected_process].arrivalTime, processes[selected_process].burstTime);
 
+      // Sets end time and increase completed processess if remaining time is 0
       if (processes[selected_process].remaining_time == 0)
       {
          processes[selected_process].end_time = current_time;
          completed_processes++;
       }
 
+      // Sets the next offset for the rotation
       next_process_id = (selected_process + 1)%6;
    }
 
-   // printf("Total execution time: %d\n", total_time);
+   // Print the Gantt Chart after all processes have been completed
    printf("\nRound Robin Scheduling\n");
    printGanttChartPreemptive(head);
 }
